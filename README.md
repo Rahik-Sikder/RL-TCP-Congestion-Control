@@ -1,6 +1,8 @@
 # TCP Congestion Control RL Agent
 
-Trains a PPO agent to control TCP congestion window via NS-3 simulation, then exports the policy as an ONNX model for deployment in a Kathará C environment.
+Final Project for M364M - Principles of Machine Learning II
+
+Trains an RL agent to control TCP congestion window via NS-3 simulation, then exports the policy as an ONNX model for deployment in a Kathará C environment.
 
 ---
 
