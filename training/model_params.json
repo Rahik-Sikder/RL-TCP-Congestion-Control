@@ -1,0 +1,12 @@
+{
+  "tcp_sim_list": ["tcp-rl-env"],
+  "ppo": {
+    "k": 10,
+    "hidden_dim": 64,
+    "lr": 3e-4,
+    "num_episodes": 1,
+    "gamma": 0.99,
+    "port": 5555,
+    "sim_seed": 42
+  }
+}
