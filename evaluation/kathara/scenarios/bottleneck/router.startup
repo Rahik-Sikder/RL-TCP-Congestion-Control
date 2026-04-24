@@ -1,0 +1,9 @@
+#!/bin/bash
+ip addr add 10.0.0.254/24 dev eth0
+ip addr add 10.0.1.254/24 dev eth1
+ip link set eth0 up
+ip link set eth1 up
+sysctl -w net.ipv4.ip_forward=1
+# Bottleneck: 1 Mbit on the egress toward receiver
+tc qdisc add dev eth1 root tbf rate 1mbit burst 10kb latency 50ms
+echo "[bottleneck] router network ready"

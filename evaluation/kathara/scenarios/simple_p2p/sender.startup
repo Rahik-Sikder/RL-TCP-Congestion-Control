@@ -1,0 +1,5 @@
+#!/bin/bash
+ip addr add 10.0.0.1/24 dev eth0
+ip link set eth0 up
+tc qdisc add dev eth0 root netem delay 20ms rate 10mbit
+echo "[simple_p2p] sender network ready"
