@@ -1,5 +1,5 @@
 {
-  "tcp_sim_list": ["tcp-rl-env", "tcp-rl-env-variable-latency", "tcp-rl-env-simple-p2p", "tcp-rl-env-high-loss", "tcp-rl-env-bottleneck"],
+  "tcp_sim_list": ["tcp-rl-env"],
   "ppo": {
     "k": 10,
     "hidden_dim": 64,
@@ -7,6 +7,27 @@
     "num_episodes": 100,
     "gamma": 0.99,
     "port": 5555,
-    "sim_seed": 42
+    "sim_seed": 42,
+    "eval_seeds": [42, 43, 44],
+    "eval_episodes_per_seed": 1
+  },
+  "dqn": {
+    "k": 10,
+    "hidden_dim": 64,
+    "lr": 1e-4,
+    "num_episodes": 100,
+    "gamma": 0.99,
+    "port": 5555,
+    "sim_seed": 42,
+    "batch_size": 64,
+    "replay_capacity": 50000,
+    "warmup_steps": 1000,
+    "train_freq": 1,
+    "target_update_freq": 500,
+    "epsilon_start": 1.0,
+    "epsilon_end": 0.05,
+    "epsilon_decay_steps": 50000,
+    "eval_seeds": [42, 43, 44],
+    "eval_episodes_per_seed": 1
   }
 }

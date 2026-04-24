@@ -21,9 +21,17 @@ def export_onnx(model, model_name: str, input_size: int, device) -> str:
     dummy_input = torch.randn(1, input_size).to(device)
 
     model.eval()
+    model_key = model_name.lower()
+    if model_key == "ppo":
+        output_names = ["action_mean", "action_std", "value"]
+    elif model_key == "dqn":
+        output_names = ["q_values"]
+    else:
+        output_names = ["output"]
+
     torch.onnx.export(
         model, dummy_input, onnx_path,
-        input_names=["state"], output_names=["action_mean", "action_std", "value"],
+        input_names=["state"], output_names=output_names,
         dynamo=False,
     )
 

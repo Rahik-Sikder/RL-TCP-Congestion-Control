@@ -9,7 +9,8 @@ import torch
 import torch.optim as optim
 
 from tcp_train_toolkit.models.ppo_cnn import PpoActorCritic1DCNN
-from tcp_train_toolkit import export, ppo_trainer
+from tcp_train_toolkit.models.dqn_cnn import DqnQNetwork1DCNN
+from tcp_train_toolkit import export, ppo_trainer, dqn_trainer
 
 # Default hyperparameters — used as fallback when a key is absent from model_params.json
 DEFAULTS = {
@@ -21,11 +22,29 @@ DEFAULTS = {
         "gamma": 0.99,
         "port": 5555,
         "sim_seed": 42,
-    }
+    },
+    "dqn": {
+        "k": 10,
+        "hidden_dim": 64,
+        "lr": 1e-4,
+        "num_episodes": 500,
+        "gamma": 0.99,
+        "port": 5555,
+        "sim_seed": 42,
+        "batch_size": 64,
+        "replay_capacity": 50000,
+        "warmup_steps": 1000,
+        "train_freq": 1,
+        "target_update_freq": 500,
+        "epsilon_start": 1.0,
+        "epsilon_end": 0.05,
+        "epsilon_decay_steps": 50000,
+    },
 }
 
 MODEL_TRAINERS = {
     "ppo": ppo_trainer,
+    "dqn": dqn_trainer,
 }
 
 
@@ -56,13 +75,15 @@ def main():
     parser = argparse.ArgumentParser(description="Train a TCP congestion control RL agent in NS-3")
     parser.add_argument(
         "--model",
-        choices=list(MODEL_TRAINERS.keys()),
         default="ppo",
-        help="RL algorithm / model architecture to train (default: ppo)",
+        help="RL algorithm / model architecture to train (ppo or dqn). Case-insensitive. Default: ppo",
     )
     args = parser.parse_args()
+    model_name = args.model.lower()
+    if model_name not in MODEL_TRAINERS:
+        raise ValueError(f"Unknown model: {args.model}. Valid options: {list(MODEL_TRAINERS.keys())}")
 
-    params, sim_list = load_params(args.model)
+    params, sim_list = load_params(model_name)
 
     # ns-3.40 lives alongside this script
     start_cwd = os.getcwd()
@@ -70,19 +91,22 @@ def main():
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    if args.model == "ppo":
+    if model_name == "ppo":
         model = PpoActorCritic1DCNN(k=params["k"], hidden_dim=params["hidden_dim"]).to(device)
         optimizer = optim.Adam(model.parameters(), lr=params["lr"])
+    elif model_name == "dqn":
+        model = DqnQNetwork1DCNN(k=params["k"], hidden_dim=params["hidden_dim"]).to(device)
+        optimizer = optim.Adam(model.parameters(), lr=params["lr"])
     else:
-        raise ValueError(f"Unknown model: {args.model}")
+        raise ValueError(f"Unknown model: {model_name}")
 
-    trainer = MODEL_TRAINERS[args.model]
+    trainer = MODEL_TRAINERS[model_name]
     trainer.run(model, optimizer, ns3_dir, device, params, sim_list=sim_list)
 
     # Export to ONNX for Kathará C integration
     print("Training complete. Exporting model to ONNX...")
     state_dim = (params["k"] * 3) + 1
-    onnx_path = export.export_onnx(model, args.model, state_dim, device)
+    onnx_path = export.export_onnx(model, model_name, state_dim, device)
     print(f"Export saved to {onnx_path}")
 
 

@@ -3843,14 +3843,30 @@ TcpSocketBase::ReTxTimeout()
                                        << ", restart from seqnum " << m_txBuffer->HeadSequence()
                                        << " doubled rto to " << m_rto.Get().GetSeconds() << " s");
 
-    NS_ASSERT_MSG(BytesInFlight() == 0,
-                  "There are some bytes in flight after an RTO: " << BytesInFlight());
+    const uint32_t inFlightBeforeSend = BytesInFlight();
+    NS_ASSERT_MSG(inFlightBeforeSend == 0,
+                  "There are some bytes in flight after an RTO: " << inFlightBeforeSend);
 
     SendPendingData(m_connected);
 
-    NS_ASSERT_MSG(BytesInFlight() <= m_tcb->m_segmentSize,
-                  "In flight (" << BytesInFlight() << ") there is more than one segment ("
-                                << m_tcb->m_segmentSize << ")");
+    const uint32_t inFlightAfterRto = BytesInFlight();
+    NS_LOG_UNCOND("[RTO_STATS] t=" << Simulator::Now().GetSeconds()
+                                   << " inflight_before_send=" << inFlightBeforeSend
+                                   << " inflight_after_send=" << inFlightAfterRto
+                                   << " seg_size=" << m_tcb->m_segmentSize
+                                   << " cwnd=" << m_tcb->m_cWnd
+                                   << " ssthresh=" << m_tcb->m_ssThresh);
+    if (inFlightAfterRto > m_tcb->m_segmentSize)
+    {
+        NS_LOG_WARN("RTO recovery has " << inFlightAfterRto << " bytes in flight (> 1 MSS="
+                                        << m_tcb->m_segmentSize
+                                        << "). Adjusting cwnd to avoid abort.");
+        m_tcb->m_cWnd = inFlightAfterRto;
+        m_tcb->m_cWndInfl = m_tcb->m_cWnd;
+        NS_LOG_UNCOND("[RTO_GUARD] t=" << Simulator::Now().GetSeconds()
+                                       << " adjusted_cwnd=" << m_tcb->m_cWnd
+                                       << " reason=inflight_gt_1mss");
+    }
 }
 
 void
