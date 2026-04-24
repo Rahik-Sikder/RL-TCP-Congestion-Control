@@ -1,10 +1,10 @@
 {
-  "tcp_sim_list": ["tcp-rl-env"],
+  "tcp_sim_list": ["tcp-rl-env", "tcp-rl-env-variable-latency", "tcp-rl-env-simple-p2p", "tcp-rl-env-high-loss", "tcp-rl-env-bottleneck"],
   "ppo": {
     "k": 10,
     "hidden_dim": 64,
     "lr": 3e-4,
-    "num_episodes": 50,
+    "num_episodes": 100,
     "gamma": 0.99,
     "port": 5555,
     "sim_seed": 42

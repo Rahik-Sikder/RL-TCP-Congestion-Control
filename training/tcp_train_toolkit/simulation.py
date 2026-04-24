@@ -2,7 +2,8 @@ import os
 import random
 import shutil
 
-TCP_SIM_LIST = ["tcp-rl-env"]
+#"tcp-rl-env"
+TCP_SIM_LIST = ["tcp-rl-env-variable-latency", "tcp-rl-env-simple-p2p", "tcp-rl-env-high-loss", "tcp-rl-env-bottleneck"]
 
 
 def enter_sim(ns3_dir: str, sim_list: list = None) -> tuple:

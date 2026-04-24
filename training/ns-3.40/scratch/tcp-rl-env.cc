@@ -187,9 +187,9 @@ public:
         
         Ptr<OpenGymBoxContainer<float>> box = DynamicCast<OpenGymBoxContainer<float>>(action);
         float a_agent = box->GetValue(0); // Value between -1 and 1 
-        std::cout << "[ACTION] t=" << Simulator::Now().GetSeconds()
-                  << " a_agent=" << a_agent
-                  << " cwnd_mss_before=" << m_currentCwnd;
+        // std::cout << "[ACTION] t=" << Simulator::Now().GetSeconds()
+        //           << " a_agent=" << a_agent
+        //           << " cwnd_mss_before=" << m_currentCwnd;
         
         // Apply: cwnd_{t+1} = cwnd_t * 2^{a_agent} [cite: 42]
         m_currentCwnd = m_currentCwnd * pow(2.0, a_agent); 
@@ -268,9 +268,9 @@ public:
         if (m_tcpSocket) {
             m_currentCwnd = static_cast<float>(newCwnd) / static_cast<float>(m_segmentSizeBytes);
         }
-        std::cout << "[CWND] t=" << Simulator::Now().GetSeconds()
-                  << " old_bytes=" << oldCwnd
-                  << " new_bytes=" << newCwnd << std::endl;
+    //     std::cout << "[CWND] t=" << Simulator::Now().GetSeconds()
+    //               << " old_bytes=" << oldCwnd
+    //               << " new_bytes=" << newCwnd << std::endl;
     }
 
     // UPDATED: Correct NS-3 Rx trace signature
