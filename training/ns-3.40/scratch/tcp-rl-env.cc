@@ -4,12 +4,95 @@
 #include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/tcp-socket-base.h"
+#include "ns3/tcp-congestion-ops.h"
 #include "ns3/opengym-module.h"
 #include <deque>
 #include <string>
 #include <cmath>
+#include <algorithm>
 
 using namespace ns3;
+
+class TcpRlCongestionOps : public TcpCongestionOps {
+public:
+    static TypeId GetTypeId() {
+        static TypeId tid = TypeId("ns3::TcpRlCongestionOps")
+            .SetParent<TcpCongestionOps>()
+            .SetGroupName("Internet")
+            .AddConstructor<TcpRlCongestionOps>();
+        return tid;
+    }
+
+    TcpRlCongestionOps() : TcpCongestionOps(), m_targetCwndSegments(1.0) {}
+    TcpRlCongestionOps(const TcpRlCongestionOps& sock)
+        : TcpCongestionOps(sock), m_targetCwndSegments(sock.m_targetCwndSegments) {}
+    ~TcpRlCongestionOps() override = default;
+
+    void SetTargetCwndSegments(double cwndSegments) {
+        m_targetCwndSegments = std::max(1.0, cwndSegments);
+    }
+
+    std::string GetName() const override {
+        return "TcpRlCongestionOps";
+    }
+
+    uint32_t GetSsThresh(Ptr<const TcpSocketState> tcb, uint32_t bytesInFlight) override {
+        (void)bytesInFlight;
+        return std::max(2 * tcb->m_segmentSize, GetTargetCwndBytes(tcb));
+    }
+
+    void IncreaseWindow(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked) override {
+        (void)segmentsAcked;
+        ApplyTargetCwnd(tcb);
+    }
+
+    void PktsAcked(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked, const Time& rtt) override {
+        (void)segmentsAcked;
+        (void)rtt;
+        ApplyTargetCwnd(tcb);
+    }
+
+    void CwndEvent(Ptr<TcpSocketState> tcb, const TcpSocketState::TcpCAEvent_t event) override {
+        (void)event;
+        ApplyTargetCwnd(tcb);
+    }
+
+    void CongestionStateSet(Ptr<TcpSocketState> tcb,
+                            const TcpSocketState::TcpCongState_t newState) override {
+        (void)newState;
+        ApplyTargetCwnd(tcb);
+    }
+
+    bool HasCongControl() const override {
+        return true;
+    }
+
+    void CongControl(Ptr<TcpSocketState> tcb,
+                     const TcpRateOps::TcpRateConnection& rc,
+                     const TcpRateOps::TcpRateSample& rs) override {
+        (void)rc;
+        (void)rs;
+        ApplyTargetCwnd(tcb);
+    }
+
+    Ptr<TcpCongestionOps> Fork() override {
+        return CopyObject<TcpRlCongestionOps>(this);
+    }
+
+private:
+    uint32_t GetTargetCwndBytes(Ptr<const TcpSocketState> tcb) const {
+        return static_cast<uint32_t>(std::llround(m_targetCwndSegments * tcb->m_segmentSize));
+    }
+
+    void ApplyTargetCwnd(Ptr<TcpSocketState> tcb) const {
+        const uint32_t targetBytes = std::max(tcb->m_segmentSize, GetTargetCwndBytes(tcb));
+        tcb->m_cWnd = targetBytes;
+        tcb->m_cWndInfl = targetBytes;
+        tcb->m_ssThresh = std::max(2 * tcb->m_segmentSize, targetBytes);
+    }
+
+    double m_targetCwndSegments;
+};
 
 class TcpRlEnv : public OpenGymEnv {
 public:
@@ -29,6 +112,12 @@ public:
         m_lossRate = 0.0;
         m_packetsLost = 0;
         m_packetsSent = 0;
+    }
+
+    void SetBottleneckRate(const std::string& dataRate)
+    {
+        DataRate bw(dataRate);
+        m_bottleneckBitrate = static_cast<double>(bw.GetBitRate());
     }
 
     // 1. Define State Space (d = 31 continuous values)
@@ -98,19 +187,22 @@ public:
         
         Ptr<OpenGymBoxContainer<float>> box = DynamicCast<OpenGymBoxContainer<float>>(action);
         float a_agent = box->GetValue(0); // Value between -1 and 1 
-        //print value
-        // std::cout << "  - Action Value (a_agent): " << a_agent << std::endl;
+        std::cout << "[ACTION] t=" << Simulator::Now().GetSeconds()
+                  << " a_agent=" << a_agent
+                  << " cwnd_mss_before=" << m_currentCwnd;
         
         // Apply: cwnd_{t+1} = cwnd_t * 2^{a_agent} [cite: 42]
         m_currentCwnd = m_currentCwnd * pow(2.0, a_agent); 
-        
+        // Bound cwnd by bandwidth (BDP) instead of a fixed constant.
+        float maxCwnd = GetBandwidthCwndCapMss();
+        if (m_currentCwnd > maxCwnd) m_currentCwnd = maxCwnd;
         // Ensure cwnd doesn't drop below 1 MSS
         if (m_currentCwnd < 1.0) m_currentCwnd = 1.0;
+        std::cout << " cwnd_mss_after=" << m_currentCwnd << std::endl;
 
-        // Apply to the actual NS-3 Socket if it is attached
-        if (m_tcpSocket) {
-            uint32_t segmentSize = 1448; // Standard Ethernet MSS
-            m_tcpSocket->SetAttribute("SndCwnd", UintegerValue(static_cast<uint32_t>(m_currentCwnd * segmentSize)));
+        // Push action into congestion control module so next ACK updates real TCP cwnd.
+        if (m_rlCongestion) {
+            m_rlCongestion->SetTargetCwndSegments(m_currentCwnd);
         }
 
         return true; 
@@ -132,11 +224,28 @@ public:
 
     // Helper method to attach a specific sender socket to this environment
     void AttachTcpSocket(Ptr<TcpSocketBase> socket) {
+        if (m_tcpSocket) {
+            return;
+        }
         m_tcpSocket = socket;
+        m_rlCongestion = CreateObject<TcpRlCongestionOps>();
+        m_rlCongestion->SetTargetCwndSegments(m_currentCwnd);
+        m_tcpSocket->SetCongestionControlAlgorithm(m_rlCongestion);
+        UintegerValue segSizeAttr;
+        m_tcpSocket->GetAttribute("SegmentSize", segSizeAttr);
+        m_segmentSizeBytes = std::max<uint32_t>(1u, static_cast<uint32_t>(segSizeAttr.Get()));
+        std::cout << "[NS3] Attached sender socket and installed TcpRlCongestionOps" << std::endl;
+    }
+
+    void AttachTcpSocketFromTrace(Ptr<const TcpSocketBase> socket) {
+        if (!m_tcpSocket && socket) {
+            AttachTcpSocket(ConstCast<TcpSocketBase>(socket));
+        }
     }
 
     // Matches TcpSocketBase "Tx" trace: (Ptr<const Packet>, const TcpHeader&, Ptr<const TcpSocketBase>)
     void OnPacketSent(Ptr<const Packet> packet, const TcpHeader& header, Ptr<const TcpSocketBase> socket) {
+        AttachTcpSocketFromTrace(socket);
         m_packetsSent++;
     }
 
@@ -154,8 +263,19 @@ public:
         m_currentRtt = newRtt.GetMilliSeconds();
     }
 
+    // Validate that NS-3 TCP stack itself is changing cwnd over time (bytes).
+    void OnCwndChange(uint32_t oldCwnd, uint32_t newCwnd) {
+        if (m_tcpSocket) {
+            m_currentCwnd = static_cast<float>(newCwnd) / static_cast<float>(m_segmentSizeBytes);
+        }
+        std::cout << "[CWND] t=" << Simulator::Now().GetSeconds()
+                  << " old_bytes=" << oldCwnd
+                  << " new_bytes=" << newCwnd << std::endl;
+    }
+
     // UPDATED: Correct NS-3 Rx trace signature
     void OnAckReceived(Ptr<const Packet> packet, const TcpHeader& header, Ptr<const TcpSocketBase> socket) {
+        AttachTcpSocketFromTrace(socket);
         // 1. Calculate if this is a Duplicate ACK
         bool isDupAck = false;
         if (header.GetFlags() & TcpHeader::ACK) {
@@ -198,7 +318,7 @@ public:
         // Simple heuristic: (MSS * m_currentCwnd) / RTT
         // For accurate throughput, connect this class to the sink's Rx packet traces.
         if (m_currentRtt > 0) {
-            float bytesInFlight = m_currentCwnd * 1448.0f; // in bytes
+            float bytesInFlight = m_currentCwnd * static_cast<float>(m_segmentSizeBytes); // in bytes
             float rttSeconds = m_currentRtt / 1000.0f;
             m_currentThroughput = (bytesInFlight * 8.0f / rttSeconds) / 1000000.0f; // Mbps
         }
@@ -210,6 +330,19 @@ public:
     }
 
 private:
+    float GetBandwidthCwndCapMss() const
+    {
+        if (m_bottleneckBitrate <= 0.0)
+        {
+            return 65535.0f;
+        }
+        const float rttMs = (m_minRtt > 0.0f) ? m_minRtt : 10.0f;
+        const float rttSeconds = rttMs / 1000.0f;
+        const float bdpBytes = static_cast<float>((m_bottleneckBitrate * rttSeconds) / 8.0);
+        const float capMss = bdpBytes / static_cast<float>(m_segmentSizeBytes);
+        return std::max(1.0f, capMss);
+    }
+
     uint32_t m_k, m_d;
     uint32_t m_ackCounter;
     uint32_t m_predictionInterval;
@@ -222,6 +355,9 @@ private:
 
     SequenceNumber32 m_highestAck;
     Ptr<TcpSocketBase> m_tcpSocket;
+    Ptr<TcpRlCongestionOps> m_rlCongestion;
+    uint32_t m_segmentSizeBytes{1448};
+    double m_bottleneckBitrate{0.0};
 };
 
 
@@ -257,9 +393,10 @@ int main(int argc, char *argv[]) {
     // ------------------------------------------------------------------
     // 3. BUILD YOUR NETWORK TOPOLOGY HERE
 // Configurable network parameters
-    std::string dataRate = "10Mbps";
+    std::string dataRate = "5Mbps";
     std::string delay = "10ms";
     double simulationTime = simDuration; 
+    env->SetBottleneckRate(dataRate);
 
     // Create the nodes
     NodeContainer nodes;
@@ -271,10 +408,14 @@ int main(int argc, char *argv[]) {
     p2p.SetChannelAttribute("Delay", StringValue(delay));
     
     // Important for buffer bloat/congestion scenarios: Set the queue size
-    p2p.SetQueue("ns3::DropTailQueue", "MaxSize", StringValue("100p"));
+    p2p.SetQueue("ns3::DropTailQueue", "MaxSize", StringValue("20p"));
 
     // Install link devices onto the nodes
     NetDeviceContainer devices = p2p.Install(nodes);
+    // Add a very small random loss rate on the receiver-side device.
+    Ptr<RateErrorModel> smallLoss = CreateObject<RateErrorModel>();
+    smallLoss->SetAttribute("ErrorRate", DoubleValue(1e-6));
+    devices.Get(1)->SetAttribute("ReceiveErrorModel", PointerValue(smallLoss));
 
     // Install the Internet Stack (TCP/IP)
     InternetStackHelper stack;
@@ -318,6 +459,8 @@ int main(int argc, char *argv[]) {
             MakeCallback(&TcpRlEnv::OnAckReceived, env));
         Config::ConnectWithoutContext("/NodeList/0/$ns3::TcpL4Protocol/SocketList/*/RTT",
             MakeCallback(&TcpRlEnv::OnRttUpdated, env));
+        Config::ConnectWithoutContext("/NodeList/0/$ns3::TcpL4Protocol/SocketList/*/CongestionWindow",
+            MakeCallback(&TcpRlEnv::OnCwndChange, env));
 
         Config::ConnectWithoutContext("/NodeList/0/DeviceList/0/$ns3::PointToPointNetDevice/TxQueue/Drop",
             MakeCallback(&TcpRlEnv::OnPacketDropped, env));
