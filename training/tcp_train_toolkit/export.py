@@ -1,13 +1,15 @@
+import json
 import os
 from datetime import datetime
 
 import torch
 
 
-def export_onnx(model, model_name: str, input_size: int, device) -> str:
+def export_onnx(model, model_name: str, input_size: int, device, k: int = None) -> str:
     """Export model to ONNX inside training/outputs/{model_name}_{date}_{time}/.
 
-    Returns the path to the exported .onnx file.
+    Also writes {model_name}.info.json with {"k": k} when k is provided.
+    Returns the path to the output directory.
     """
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     output_dir = os.path.join(
@@ -35,4 +37,9 @@ def export_onnx(model, model_name: str, input_size: int, device) -> str:
         dynamo=False,
     )
 
-    return onnx_path
+    if k is not None:
+        info_path = os.path.join(output_dir, f"{model_name}.info.json")
+        with open(info_path, "w") as f:
+            json.dump({"k": k}, f, indent=4)
+
+    return output_dir

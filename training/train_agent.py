@@ -106,7 +106,7 @@ def main():
     # Export to ONNX for Kathará C integration
     print("Training complete. Exporting model to ONNX...")
     state_dim = (params["k"] * 3) + 1
-    onnx_path = export.export_onnx(model, model_name, state_dim, device)
+    onnx_path = export.export_onnx(model, model_name, state_dim, device, k=params["k"])
     print(f"Export saved to {onnx_path}")
 
 
