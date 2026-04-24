@@ -1,0 +1,18 @@
+#!/bin/bash
+ip addr add 10.0.0.1/24 dev eth0
+ip link set eth0 up
+tc qdisc add dev eth0 root netem delay 10ms rate 10mbit
+echo "[variable_latency] sender network ready"
+
+# Cycle netem delay every 5 seconds: 10ms → 30ms → 50ms → 20ms → repeat
+(
+  DELAYS=(10ms 30ms 50ms 20ms)
+  i=0
+  while true; do
+    sleep 5
+    d="${DELAYS[$((i % 4))]}"
+    tc qdisc change dev eth0 root netem delay "$d" rate 10mbit
+    echo "[variable_latency] delay changed to $d"
+    i=$((i + 1))
+  done
+) &
