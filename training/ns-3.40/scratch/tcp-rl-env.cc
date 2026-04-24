@@ -325,8 +325,8 @@ public:
     }
     
     bool GetGameOver() override {
-        // Example: End the episode after 1 hour of simulated time
-        return Simulator::Now().GetSeconds() >= 1 * 3600;
+        // Example: End the episode after 20 minutes of simulated time
+        return Simulator::Now().GetSeconds() >= 1 * 1200.0;
     }
 
 private:
@@ -365,7 +365,7 @@ int main(int argc, char *argv[]) {
     // Default parameters that Python can override
     uint16_t simPort = 5555;
     uint32_t simSeed = 42;
-    float simDuration = 60.0; // Seconds
+    float simDuration = 1200.0; // Seconds
 
     // Allow Python/ns3-gym to pass arguments in
     CommandLine cmd;

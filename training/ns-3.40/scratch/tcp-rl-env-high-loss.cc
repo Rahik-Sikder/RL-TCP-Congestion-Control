@@ -75,6 +75,8 @@ public:
         Ptr<OpenGymBoxContainer<float>> box = DynamicCast<OpenGymBoxContainer<float>>(action);
         float a_agent = box->GetValue(0);
         m_currentCwnd = m_currentCwnd * pow(2.0, a_agent);
+        float maxCwnd = GetBandwidthCwndCapMss();
+        if (m_currentCwnd > maxCwnd) m_currentCwnd = maxCwnd;
         if (m_currentCwnd < 1.0) m_currentCwnd = 1.0;
         if (m_tcpSocket) {
             uint32_t segmentSize = 1448;
@@ -148,10 +150,18 @@ public:
     }
 
     bool GetGameOver() override {
-        return Simulator::Now().GetSeconds() >= 3600.0;
+        return Simulator::Now().GetSeconds() >= 1200.0;
     }
 
 private:
+    float GetBandwidthCwndCapMss() const {
+        const float throughputMbps = (m_maxThroughput > 0.0f) ? m_maxThroughput : 1.0f;
+        const float rttMs = (m_minRtt > 0.0f) ? m_minRtt : 1.0f;
+        const float bdpBytes = (throughputMbps * 1000000.0f) * (rttMs / 1000.0f) / 8.0f;
+        const float capMss = bdpBytes / 1448.0f;
+        return (capMss > 1.0f) ? capMss : 1.0f;
+    }
+
     uint32_t m_k, m_d;
     uint32_t m_ackCounter;
     uint32_t m_predictionInterval;
@@ -169,7 +179,7 @@ private:
 int main(int argc, char *argv[]) {
     uint16_t simPort = 5555;
     uint32_t simSeed = 42;
-    float    simDuration = 60.0;
+    float    simDuration = 1200.0;
 
     CommandLine cmd;
     cmd.AddValue("openGymPort", "Port number for OpenGym env", simPort);
