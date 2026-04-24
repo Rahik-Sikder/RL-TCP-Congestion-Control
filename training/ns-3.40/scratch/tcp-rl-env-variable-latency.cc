@@ -193,7 +193,7 @@ public:
     }
 
     bool GetGameOver() override {
-        return Simulator::Now().GetSeconds() >= 1200.0;
+        return Simulator::Now().GetSeconds() >= 300.0;
     }
 
 private:
@@ -222,7 +222,7 @@ private:
 int main(int argc, char *argv[]) {
     uint16_t simPort = 5555;
     uint32_t simSeed = 42;
-    float    simDuration = 1200.0;
+    float    simDuration = 300.0;
 
     CommandLine cmd;
     cmd.AddValue("openGymPort", "Port number for OpenGym env", simPort);

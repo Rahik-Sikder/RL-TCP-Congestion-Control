@@ -2,7 +2,7 @@
 #include "../transport/queue.h"
 /* Homebrew macOS: onnxruntime/onnxruntime_c_api.h
  * Linux pip:      onnxruntime/core/session/onnxruntime_c_api.h */
-#include <onnxruntime/onnxruntime_c_api.h>
+#include <onnxruntime/core/session/onnxruntime_c_api.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>

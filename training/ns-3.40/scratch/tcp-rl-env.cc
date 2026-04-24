@@ -187,7 +187,7 @@ public:
         
         Ptr<OpenGymBoxContainer<float>> box = DynamicCast<OpenGymBoxContainer<float>>(action);
         float a_agent = box->GetValue(0); // Value between -1 and 1 
-        // // std::cout << "[ACTION] t=" << Simulator::Now().GetSeconds()
+        // std::cout << "[ACTION] t=" << Simulator::Now().GetSeconds()
         //           << " a_agent=" << a_agent
         //           << " cwnd_mss_before=" << m_currentCwnd;
         
@@ -326,7 +326,7 @@ public:
     
     bool GetGameOver() override {
         // Example: End the episode after 20 minutes of simulated time
-        return Simulator::Now().GetSeconds() >= 1 * 1200.0;
+        return Simulator::Now().GetSeconds() >= 1 * 150.0;
     }
 
 private:
@@ -365,7 +365,7 @@ int main(int argc, char *argv[]) {
     // Default parameters that Python can override
     uint16_t simPort = 5555;
     uint32_t simSeed = 42;
-    float simDuration = 1200.0; // Seconds
+    float simDuration = 150.0; // Seconds
 
     // Allow Python/ns3-gym to pass arguments in
     CommandLine cmd;
