@@ -3850,12 +3850,12 @@ TcpSocketBase::ReTxTimeout()
     SendPendingData(m_connected);
 
     const uint32_t inFlightAfterRto = BytesInFlight();
-    NS_LOG_UNCOND("[RTO_STATS] t=" << Simulator::Now().GetSeconds()
-                                   << " inflight_before_send=" << inFlightBeforeSend
-                                   << " inflight_after_send=" << inFlightAfterRto
-                                   << " seg_size=" << m_tcb->m_segmentSize
-                                   << " cwnd=" << m_tcb->m_cWnd
-                                   << " ssthresh=" << m_tcb->m_ssThresh);
+    // NS_LOG_UNCOND("[RTO_STATS] t=" << Simulator::Now().GetSeconds()
+    //                                << " inflight_before_send=" << inFlightBeforeSend
+    //                                << " inflight_after_send=" << inFlightAfterRto
+    //                                << " seg_size=" << m_tcb->m_segmentSize
+    //                                << " cwnd=" << m_tcb->m_cWnd
+    //                                << " ssthresh=" << m_tcb->m_ssThresh);
     if (inFlightAfterRto > m_tcb->m_segmentSize)
     {
         NS_LOG_WARN("RTO recovery has " << inFlightAfterRto << " bytes in flight (> 1 MSS="

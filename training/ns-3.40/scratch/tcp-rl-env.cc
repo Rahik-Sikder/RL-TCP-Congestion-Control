@@ -149,16 +149,16 @@ public:
         box->AddValue(m_currentCwnd); // Last element is cwnd [cite: 38]
 
         // Print buffers and PID
-        // std::cout << "[tcp-rl-env] PID: " << getpid() << std::endl;
-        // std::cout << "  RTT History: ";
-        // for (const auto& v : m_rttHistory) std::cout << v << " ";
-        // std::cout << std::endl;
-        // std::cout << "  DupAck History: ";
-        // for (const auto& v : m_dupAckHistory) std::cout << v << " ";
-        // std::cout << std::endl;
-        // std::cout << "  Timeout History: ";
-        // for (const auto& v : m_timeoutHistory) std::cout << v << " ";
-        // std::cout << std::endl;
+        // // std::cout << "[tcp-rl-env] PID: " << getpid() << std::endl;
+        // // std::cout << "  RTT History: ";
+        // for (const auto& v : m_rttHistory) // std::cout << v << " ";
+        // // std::cout << std::endl;
+        // // std::cout << "  DupAck History: ";
+        // for (const auto& v : m_dupAckHistory) // std::cout << v << " ";
+        // // std::cout << std::endl;
+        // // std::cout << "  Timeout History: ";
+        // for (const auto& v : m_timeoutHistory) // std::cout << v << " ";
+        // // std::cout << std::endl;
 
         // // Sleep for 2 seconds
         // sleep(1);
@@ -187,7 +187,7 @@ public:
         
         Ptr<OpenGymBoxContainer<float>> box = DynamicCast<OpenGymBoxContainer<float>>(action);
         float a_agent = box->GetValue(0); // Value between -1 and 1 
-        // std::cout << "[ACTION] t=" << Simulator::Now().GetSeconds()
+        // // std::cout << "[ACTION] t=" << Simulator::Now().GetSeconds()
         //           << " a_agent=" << a_agent
         //           << " cwnd_mss_before=" << m_currentCwnd;
         
@@ -198,7 +198,7 @@ public:
         if (m_currentCwnd > maxCwnd) m_currentCwnd = maxCwnd;
         // Ensure cwnd doesn't drop below 1 MSS
         if (m_currentCwnd < 1.0) m_currentCwnd = 1.0;
-        std::cout << " cwnd_mss_after=" << m_currentCwnd << std::endl;
+        // std::cout << " cwnd_mss_after=" << m_currentCwnd << std::endl;
 
         // Push action into congestion control module so next ACK updates real TCP cwnd.
         if (m_rlCongestion) {
@@ -234,7 +234,7 @@ public:
         UintegerValue segSizeAttr;
         m_tcpSocket->GetAttribute("SegmentSize", segSizeAttr);
         m_segmentSizeBytes = std::max<uint32_t>(1u, static_cast<uint32_t>(segSizeAttr.Get()));
-        std::cout << "[NS3] Attached sender socket and installed TcpRlCongestionOps" << std::endl;
+        // std::cout << "[NS3] Attached sender socket and installed TcpRlCongestionOps" << std::endl;
     }
 
     void AttachTcpSocketFromTrace(Ptr<const TcpSocketBase> socket) {
@@ -268,7 +268,7 @@ public:
         if (m_tcpSocket) {
             m_currentCwnd = static_cast<float>(newCwnd) / static_cast<float>(m_segmentSizeBytes);
         }
-    //     std::cout << "[CWND] t=" << Simulator::Now().GetSeconds()
+    //     // std::cout << "[CWND] t=" << Simulator::Now().GetSeconds()
     //               << " old_bytes=" << oldCwnd
     //               << " new_bytes=" << newCwnd << std::endl;
     }
@@ -305,7 +305,7 @@ public:
 
         // 5. Trigger the Python Agent every 5 ACKs
         if (m_ackCounter % m_predictionInterval == 0) {
-            // std::cout << "\n[NS3] SUCCESS: Sent ACK received! Network traffic is flowing.\n" << std::endl;
+            // // std::cout << "\n[NS3] SUCCESS: Sent ACK received! Network traffic is flowing.\n" << std::endl;
 
             CalculateThroughput(); 
             Notify(); 
@@ -451,7 +451,7 @@ int main(int argc, char *argv[]) {
     // NS-3 creates sockets dynamically when the application starts (at t=0.1s).
     // Schedule trace connections slightly after app start so sockets exist.
     Simulator::Schedule(Seconds(0.11), [env]() {
-        std::cout << "[NS3] Hooking TCP Traces..." << std::endl;
+        // std::cout << "[NS3] Hooking TCP Traces..." << std::endl;
         
         Config::ConnectWithoutContext("/NodeList/0/$ns3::TcpL4Protocol/SocketList/*/Tx",
             MakeCallback(&TcpRlEnv::OnPacketSent, env));
@@ -467,13 +467,13 @@ int main(int argc, char *argv[]) {
     });
 
     Simulator::Schedule(Seconds(0.12), [env]() {
-        std::cout << "[NS3] Sending initial state to Python..." << std::endl;
+        // std::cout << "[NS3] Sending initial state to Python..." << std::endl;
         env->Notify(); 
     });
     // ------------------------------------------------------------------
 
     // 4. Run the Simulation Loop
-    std::cout << "Starting NS-3 Simulation for TCP RL on port " << simPort << "...\n";
+    // std::cout << "Starting NS-3 Simulation for TCP RL on port " << simPort << "...\n";
     
     // Stop the simulation slightly after the RL episode ends
     Simulator::Stop(Seconds(simDuration + 1.0)); 

@@ -1,5 +1,5 @@
 {
-  "tcp_sim_list": ["tcp-rl-env"],
+  "tcp_sim_list": ["tcp-rl-env", "tcp-rl-env-bottleneck", "tcp-rl-env-high-loss", "tcp-rl-env-simple-p2p", "tcp-rl-env-variable-latency"],
   "ppo": {
     "k": 10,
     "hidden_dim": 64,

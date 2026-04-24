@@ -252,7 +252,7 @@ int main(int argc, char *argv[]) {
 
     // Hook RL traces on the sender node (NodeList/0)
     Simulator::Schedule(Seconds(0.11), [env]() {
-        std::cout << "[NS3 bottleneck] Hooking TCP Traces..." << std::endl;
+        // std::cout << "[NS3 bottleneck] Hooking TCP Traces..." << std::endl;
         Config::ConnectWithoutContext(
             "/NodeList/0/$ns3::TcpL4Protocol/SocketList/*/Tx",
             MakeCallback(&TcpRlEnv::OnPacketSent, env));
@@ -273,11 +273,11 @@ int main(int argc, char *argv[]) {
     });
 
     Simulator::Schedule(Seconds(0.12), [env]() {
-        std::cout << "[NS3 bottleneck] Sending initial state to Python..." << std::endl;
+        // std::cout << "[NS3 bottleneck] Sending initial state to Python..." << std::endl;
         env->Notify();
     });
 
-    std::cout << "Starting NS-3 bottleneck scenario on port " << simPort << "...\n";
+    // std::cout << "Starting NS-3 bottleneck scenario on port " << simPort << "...\n";
     Simulator::Stop(Seconds(simDuration + 1.0));
     Simulator::Run();
     openGym->NotifySimulationEnd();
