@@ -28,6 +28,8 @@ def export_onnx(model, model_name: str, input_size: int, device, k: int = None) 
         output_names = ["action_mean", "action_std", "value"]
     elif model_key == "dqn":
         output_names = ["q_values"]
+    elif model_key == "ddpg":
+        output_names = ["action"]
     else:
         output_names = ["output"]
 

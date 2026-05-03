@@ -13,7 +13,7 @@ class DqnQNetwork1DCNN(nn.Module):
         self.conv2 = nn.Conv1d(in_channels=16, out_channels=32, kernel_size=3, padding=1)
         self.flatten = nn.Flatten()
 
-        cnn_output_dim = (32 * k) + 1
+        cnn_output_dim = (32 * k) + 1 + 1
 
         self.fc = nn.Sequential(
             nn.Linear(cnn_output_dim, hidden_dim),
@@ -22,8 +22,9 @@ class DqnQNetwork1DCNN(nn.Module):
         self.q_head = nn.Linear(hidden_dim, num_actions)
 
     def forward(self, state):
-        time_series = state[:, :-1]
-        cwnd = state[:, -1:]
+        time_series = state[:, :-2]
+        cwnd = state[:, -2:-1]
+        loss_rate = state[:, -1:]
 
         batch_size = state.shape[0]
         time_series = time_series.view(batch_size, 3, self.k)
@@ -32,7 +33,7 @@ class DqnQNetwork1DCNN(nn.Module):
         x = self.relu(self.conv2(x))
         x = self.flatten(x)
 
-        features = torch.cat((x, cwnd), dim=1)
+        features = torch.cat((x, cwnd, loss_rate), dim=1)
         hidden = self.fc(features)
         q_values = self.q_head(hidden)
         return q_values

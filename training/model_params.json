@@ -29,5 +29,25 @@
     "epsilon_decay_steps": 50000,
     "eval_seeds": [42, 43, 44],
     "eval_episodes_per_seed": 1
+  },
+  "ddpg": {
+    "k": 10,
+    "hidden_dim": 64,
+    "lr_actor": 1e-4,
+    "lr_critic": 1e-3,
+    "num_episodes": 50,
+    "gamma": 0.99,
+    "port": 5555,
+    "sim_seed": 42,
+    "batch_size": 64,
+    "replay_capacity": 50000,
+    "warmup_steps": 1000,
+    "train_freq": 1,
+    "tau": 0.005,
+    "exploration_noise": 0.2,
+    "exploration_noise_min": 0.05,
+    "exploration_decay_steps": 50000,
+    "eval_seeds": [42, 43, 44],
+    "eval_episodes_per_seed": 1
   }
 }

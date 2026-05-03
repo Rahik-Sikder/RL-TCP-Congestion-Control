@@ -20,7 +20,7 @@ class TcpRlEnv : public OpenGymEnv {
 public:
     TcpRlEnv() {
         m_k = 10;
-        m_d = 3 * m_k + 1; // 31 features
+        m_d = 3 * m_k + 1 + 1; // 31 features
         m_ackCounter = 0;
         m_predictionInterval = 5;
         m_highestAck = 0;
@@ -54,16 +54,30 @@ public:
         padAndAdd(m_dupAckHistory);
         padAndAdd(m_timeoutHistory);
         box->AddValue(m_currentCwnd);
+        box->AddValue(m_lossRate);
         return box;
     }
 
     float GetReward() override {
-        float alpha = 1.0, beta = 0.5, delta = 0.5;
+        // R = a(T/T_max) - b(RTT/RTT_min) - d(loss_rate) - g(timeout)
+        float alpha = 4.0, beta = 0.5, delta = 2.0; 
+        float gamma = 5.0; // New heavy penalty weight for timeouts
+        
+        // Safety checks to prevent division by zero
         float t_max_safe = (m_maxThroughput > 0) ? m_maxThroughput : 1.0;
         float rtt_min_safe = (m_minRtt > 0) ? m_minRtt : 1.0;
-        return alpha * (m_currentThroughput / t_max_safe)
-             - beta  * (m_currentRtt / rtt_min_safe)
-             - delta * m_lossRate;
+
+        float t_term = alpha * (m_currentThroughput / t_max_safe);
+        float rtt_term = beta * (m_currentRtt / rtt_min_safe);
+        float loss_term = delta * m_lossRate;
+        
+        // Check if the most recent network event recorded was a timeout
+        float timeout_term = 0.0f;
+        if (!m_timeoutHistory.empty() && m_timeoutHistory.back() == 1.0f) {
+            timeout_term = gamma * 1.0f; 
+        }
+        
+        return t_term - rtt_term - loss_term - timeout_term;
     }
 
     bool ExecuteActions(Ptr<OpenGymDataContainer> action) override {
@@ -105,6 +119,17 @@ public:
 
     void OnRttUpdated(Time oldRtt, Time newRtt) {
         m_currentRtt = newRtt.GetMilliSeconds();
+    }
+
+    void OnCongStateChange(const TcpSocketState::TcpCongState_t oldState,
+                           const TcpSocketState::TcpCongState_t newState) {
+        (void)oldState;
+        if (newState == TcpSocketState::CA_LOSS) {
+            m_timeoutHistory.push_back(1.0f);
+            if (m_timeoutHistory.size() > m_k) m_timeoutHistory.pop_front();
+            CalculateThroughput();
+            Notify();
+        }
     }
 
     void OnAckReceived(Ptr<const Packet> packet, const TcpHeader& header,
@@ -149,11 +174,7 @@ public:
 
 private:
     float GetBandwidthCwndCapMss() const {
-        const float throughputMbps = (m_maxThroughput > 0.0f) ? m_maxThroughput : 1.0f;
-        const float rttMs = (m_minRtt > 0.0f) ? m_minRtt : 1.0f;
-        const float bdpBytes = (throughputMbps * 1000000.0f) * (rttMs / 1000.0f) / 8.0f;
-        const float capMss = bdpBytes / 1448.0f;
-        return (capMss > 1.0f) ? capMss : 1.0f;
+        return 1000000.0f; // Return a massive hard limit (1 million MSS)
     }
 
     uint32_t m_k, m_d;
@@ -240,6 +261,9 @@ int main(int argc, char *argv[]) {
         Config::ConnectWithoutContext(
             "/NodeList/0/$ns3::TcpL4Protocol/SocketList/*/RTT",
             MakeCallback(&TcpRlEnv::OnRttUpdated, env));
+        Config::ConnectWithoutContext(
+            "/NodeList/0/$ns3::TcpL4Protocol/SocketList/*/CongState",
+            MakeCallback(&TcpRlEnv::OnCongStateChange, env));
         Config::ConnectWithoutContext(
             "/NodeList/0/DeviceList/0/$ns3::PointToPointNetDevice/TxQueue/Drop",
             MakeCallback(&TcpRlEnv::OnPacketDropped, env));

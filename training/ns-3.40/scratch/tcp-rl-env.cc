@@ -98,7 +98,7 @@ class TcpRlEnv : public OpenGymEnv {
 public:
     TcpRlEnv() {
         m_k = 10; // Window size [cite: 38]
-        m_d = 3 * m_k + 1; // 31 features total [cite: 39]
+        m_d = 3 * m_k + 1 + 1; // 32 features total [cite: 39]
         m_ackCounter = 0;          
         m_predictionInterval = 5;  // Call agent every 5 ACKs
         m_highestAck = 0; // NEW: Initialize sequence number
@@ -147,6 +147,7 @@ public:
         padAndAdd(m_timeoutHistory);
         
         box->AddValue(m_currentCwnd); // Last element is cwnd [cite: 38]
+        box->AddValue(m_lossRate);    // Add loss rate as a feature
 
         // Print buffers and PID
         // // std::cout << "[tcp-rl-env] PID: " << getpid() << std::endl;
@@ -165,10 +166,10 @@ public:
         return box;
     }
 
-    // 4. Calculate Reward [cite: 43]
-    float GetReward() override {
-        // R = a(T/T_max) - b(RTT/RTT_min) - d(loss_rate) [cite: 44, 45, 46, 47, 48, 49]
-        float alpha = 1.0, beta = 0.5, delta = 0.5; // Grid search weights [cite: 50]
+float GetReward() override {
+        // R = a(T/T_max) - b(RTT/RTT_min) - d(loss_rate) - g(timeout)
+        float alpha = 4.0, beta = 0.5, delta = 2.0; 
+        float gamma = 5.0; // New heavy penalty weight for timeouts
         
         // Safety checks to prevent division by zero
         float t_max_safe = (m_maxThroughput > 0) ? m_maxThroughput : 1.0;
@@ -178,7 +179,13 @@ public:
         float rtt_term = beta * (m_currentRtt / rtt_min_safe);
         float loss_term = delta * m_lossRate;
         
-        return t_term - rtt_term - loss_term;
+        // Check if the most recent network event recorded was a timeout
+        float timeout_term = 0.0f;
+        if (!m_timeoutHistory.empty() && m_timeoutHistory.back() == 1.0f) {
+            timeout_term = gamma * 1.0f; 
+        }
+        
+        return t_term - rtt_term - loss_term - timeout_term;
     }
 
     // 5. Apply the Action from Python
@@ -263,6 +270,17 @@ public:
         m_currentRtt = newRtt.GetMilliSeconds();
     }
 
+    void OnCongStateChange(const TcpSocketState::TcpCongState_t oldState,
+                           const TcpSocketState::TcpCongState_t newState) {
+        (void)oldState;
+        if (newState == TcpSocketState::CA_LOSS) {
+            m_timeoutHistory.push_back(1.0f);
+            if (m_timeoutHistory.size() > m_k) m_timeoutHistory.pop_front();
+            CalculateThroughput();
+            Notify();
+        }
+    }
+
     // Validate that NS-3 TCP stack itself is changing cwnd over time (bytes).
     void OnCwndChange(uint32_t oldCwnd, uint32_t newCwnd) {
         if (m_tcpSocket) {
@@ -330,17 +348,8 @@ public:
     }
 
 private:
-    float GetBandwidthCwndCapMss() const
-    {
-        if (m_bottleneckBitrate <= 0.0)
-        {
-            return 65535.0f;
-        }
-        const float rttMs = (m_minRtt > 0.0f) ? m_minRtt : 10.0f;
-        const float rttSeconds = rttMs / 1000.0f;
-        const float bdpBytes = static_cast<float>((m_bottleneckBitrate * rttSeconds) / 8.0);
-        const float capMss = bdpBytes / static_cast<float>(m_segmentSizeBytes);
-        return std::max(1.0f, capMss);
+    float GetBandwidthCwndCapMss() const {
+        return 1000000.0f; // Return a massive hard limit (1 million MSS)
     }
 
     uint32_t m_k, m_d;
@@ -459,6 +468,8 @@ int main(int argc, char *argv[]) {
             MakeCallback(&TcpRlEnv::OnAckReceived, env));
         Config::ConnectWithoutContext("/NodeList/0/$ns3::TcpL4Protocol/SocketList/*/RTT",
             MakeCallback(&TcpRlEnv::OnRttUpdated, env));
+        Config::ConnectWithoutContext("/NodeList/0/$ns3::TcpL4Protocol/SocketList/*/CongState",
+            MakeCallback(&TcpRlEnv::OnCongStateChange, env));
         Config::ConnectWithoutContext("/NodeList/0/$ns3::TcpL4Protocol/SocketList/*/CongestionWindow",
             MakeCallback(&TcpRlEnv::OnCwndChange, env));
 

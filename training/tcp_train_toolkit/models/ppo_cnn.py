@@ -16,7 +16,8 @@ class PpoActorCritic1DCNN(nn.Module):
 
         # 32 output channels * k sequence length = 320
         # +1 for the current cwnd scalar
-        cnn_output_dim = (32 * k) + 1
+        # +1 for the current loss rate scalar
+        cnn_output_dim = (32 * k) + 1 + 1
 
         # Shared fully connected layer
         self.fc = nn.Sequential(
@@ -34,9 +35,10 @@ class PpoActorCritic1DCNN(nn.Module):
     def forward(self, state):
         # state shape: (batch_size, 31)
 
-        # Separate time-series from the scalar cwnd
-        time_series = state[:, :-1]  # Shape: (batch_size, 30)
-        cwnd = state[:, -1:]         # Shape: (batch_size, 1)
+        # Separate time-series from the scalar cwnd and loss rate
+        time_series = state[:, :-2]  # Shape: (batch_size, 30)
+        cwnd = state[:, -2:-1]       # Shape: (batch_size, 1)
+        loss_rate = state[:, -1:]    # Shape: (batch_size, 1)
 
         # Reshape time-series into 3 channels of length k
         batch_size = state.shape[0]
@@ -47,8 +49,8 @@ class PpoActorCritic1DCNN(nn.Module):
         x = self.relu(self.conv2(x))
         x = self.flatten(x)          # Shape: (batch_size, 320)
 
-        # Concatenate CNN features with the global cwnd value
-        features = torch.cat((x, cwnd), dim=1)  # Shape: (batch_size, 321)
+        # Concatenate CNN features with the global cwnd and loss rate values
+        features = torch.cat((x, cwnd, loss_rate), dim=1)  # Shape: (batch_size, 322)
 
         # Pass through shared dense layer
         hidden = self.fc(features)

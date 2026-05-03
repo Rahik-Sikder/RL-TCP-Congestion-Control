@@ -10,7 +10,8 @@ import torch.optim as optim
 
 from tcp_train_toolkit.models.ppo_cnn import PpoActorCritic1DCNN
 from tcp_train_toolkit.models.dqn_cnn import DqnQNetwork1DCNN
-from tcp_train_toolkit import export, ppo_trainer, dqn_trainer
+from tcp_train_toolkit.models.ddpg_cnn import DdpgActorCritic1DCNN
+from tcp_train_toolkit import export, ppo_trainer, dqn_trainer, ddpg_trainer
 
 # Default hyperparameters — used as fallback when a key is absent from model_params.json
 DEFAULTS = {
@@ -40,11 +41,30 @@ DEFAULTS = {
         "epsilon_end": 0.05,
         "epsilon_decay_steps": 50000,
     },
+    "ddpg": {
+        "k": 10,
+        "hidden_dim": 64,
+        "lr_actor": 1e-4,
+        "lr_critic": 1e-3,
+        "num_episodes": 500,
+        "gamma": 0.99,
+        "port": 5555,
+        "sim_seed": 42,
+        "batch_size": 64,
+        "replay_capacity": 50000,
+        "warmup_steps": 1000,
+        "train_freq": 1,
+        "tau": 0.005,
+        "exploration_noise": 0.2,
+        "exploration_noise_min": 0.05,
+        "exploration_decay_steps": 50000,
+    },
 }
 
 MODEL_TRAINERS = {
     "ppo": ppo_trainer,
     "dqn": dqn_trainer,
+    "ddpg": ddpg_trainer,
 }
 
 
@@ -76,7 +96,7 @@ def main():
     parser.add_argument(
         "--model",
         default="ppo",
-        help="RL algorithm / model architecture to train (ppo or dqn). Case-insensitive. Default: ppo",
+        help="RL algorithm / model architecture to train (ppo, dqn, or ddpg). Case-insensitive. Default: ppo",
     )
     args = parser.parse_args()
     model_name = args.model.lower()
@@ -97,6 +117,14 @@ def main():
     elif model_name == "dqn":
         model = DqnQNetwork1DCNN(k=params["k"], hidden_dim=params["hidden_dim"]).to(device)
         optimizer = optim.Adam(model.parameters(), lr=params["lr"])
+    elif model_name == "ddpg":
+        model = DdpgActorCritic1DCNN(k=params["k"], hidden_dim=params["hidden_dim"]).to(device)
+        actor_lr = params.get("lr_actor", params.get("lr", 1e-4))
+        critic_lr = params.get("lr_critic", params.get("lr", 1e-3))
+        optimizer = {
+            "actor": optim.Adam(model.actor_parameters(), lr=actor_lr),
+            "critic": optim.Adam(model.critic_parameters(), lr=critic_lr),
+        }
     else:
         raise ValueError(f"Unknown model: {model_name}")
 
