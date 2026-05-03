@@ -68,6 +68,10 @@ int main(int argc, char **argv) {
     if (bind(sock, (struct sockaddr *)&bind_addr, sizeof(bind_addr)) < 0) {
         perror("bind"); return 1;
     }
+    /* Wake up every 200 ms so SIGINT can be noticed even with no traffic */
+    struct timeval tv = { .tv_sec = 0, .tv_usec = 200000 };
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+
     printf("[receiver] listening on UDP port %d\n", port);
 
     uint8_t buf[RECV_BUF];

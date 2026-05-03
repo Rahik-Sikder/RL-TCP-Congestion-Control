@@ -1,0 +1,20 @@
+# compiled binaries
+src/sender
+src/receiver
+kathara/shared/sender
+kathara/shared/receiver
+
+
+# evaluation results
+results/
+
+# onnxruntime tar release
+onnxruntime/
+
+
+# binaries/libs/models temporarily copied into scenario shared/ dirs by run_eval.sh
+kathara/scenarios/*/shared/sender
+kathara/scenarios/*/shared/receiver
+kathara/scenarios/*/shared/lib/
+kathara/scenarios/*/shared/ppo.onnx
+kathara/scenarios/*/shared/ppo.onnx/*

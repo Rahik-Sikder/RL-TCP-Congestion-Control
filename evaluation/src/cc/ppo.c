@@ -1,8 +1,8 @@
 #include "ppo.h"
 #include "../transport/queue.h"
-/* Homebrew macOS: onnxruntime/onnxruntime_c_api.h
- * Linux pip:      onnxruntime/core/session/onnxruntime_c_api.h */
-#include <onnxruntime/core/session/onnxruntime_c_api.h>
+/* tar release (Linux/macOS): flat include dir → <onnxruntime_c_api.h>
+ * pip/apt layout has it under onnxruntime/core/session/ — adjust ONNX_PREFIX if needed */
+#include <onnxruntime_c_api.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,6 +37,9 @@ static int read_k(const char *model_dir) {
     FILE *f = fopen(path, "r");
     if (!f) {
         fprintf(stderr, "[ppo] cannot open %s\n", path);
+        char ls_cmd[MAX_PATH + 8];
+        snprintf(ls_cmd, sizeof(ls_cmd), "ls -la %s", model_dir);
+        system(ls_cmd);
         return -1;
     }
     char buf[256];

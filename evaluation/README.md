@@ -84,7 +84,7 @@ Results land in `evaluation/results/{scenario}_{algo}_{timestamp}/`.
 
 ```bash
 cd evaluation/kathara/scenarios/simple_p2p
-kathara start
+kathara lstart
 
 # Inside sender container:
 kathara exec sender -- /eval/sender \

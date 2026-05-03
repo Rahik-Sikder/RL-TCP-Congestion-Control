@@ -1,0 +1,463 @@
+[run_eval 12:59:44] Building evaluation binaries...
+make: Entering directory '/Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/src'
+make: Leaving directory '/Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/src'
+[run_eval 12:59:44] Build complete.
+[run_eval 12:59:44] Run directory: /Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/results/run_20260503_125944
+[run_eval 12:59:44] Kathara detected — using container mode.
+[run_eval 12:59:44] ===== simple_p2p × newreno =====
+[run_eval 12:59:45] Starting Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Starting Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deploying collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[Deploying devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[run_eval 12:59:48] Starting receiver in container...
+[run_eval 12:59:49] Starting sender (algo=newreno)...
+Done. algo=newreno elapsed=8.79s throughput=9.548Mbps sent=7490 acked=7490 timeouts=0
+[run_eval 13:00:00] Stopping Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Stopping Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deleting devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[Deleting collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[run_eval 13:00:00] Test simple_p2p_newreno complete → /Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/results/run_20260503_125944/simple_p2p_newreno
+
+[run_eval 13:00:00] ===== simple_p2p × cubic =====
+[run_eval 13:00:01] Starting Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Starting Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deploying collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[Deploying devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[run_eval 13:00:05] Starting receiver in container...
+[run_eval 13:00:06] Starting sender (algo=cubic)...
+Done. algo=cubic elapsed=19.98s throughput=4.199Mbps sent=7490 acked=7490 timeouts=0
+[run_eval 13:00:28] Stopping Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Stopping Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deleting devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[Deleting collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[run_eval 13:00:28] Test simple_p2p_cubic complete → /Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/results/run_20260503_125944/simple_p2p_cubic
+
+[run_eval 13:00:28] ===== simple_p2p × ppo =====
+[run_eval 13:00:29] Starting Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Starting Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deploying collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[Deploying devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[run_eval 13:00:33] Starting receiver in container...
+[run_eval 13:00:34] Starting sender (algo=ppo)...
+Done. algo=ppo elapsed=1.76s throughput=1.157Mbps sent=7490 acked=182 timeouts=7308
+[run_eval 13:00:37] Stopping Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Stopping Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deleting devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[Deleting collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[run_eval 13:00:37] Test simple_p2p_ppo complete → /Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/results/run_20260503_125944/simple_p2p_ppo
+
+[run_eval 13:00:37] ===== bottleneck × newreno =====
+[run_eval 13:00:38] Starting Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Starting Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deploying collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[Deploying devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3/3
+[run_eval 13:00:41] Starting receiver in container...
+[run_eval 13:00:42] Starting sender (algo=newreno)...
+Done. algo=newreno elapsed=85.18s throughput=0.962Mbps sent=7490 acked=7318 timeouts=172
+[run_eval 13:02:09] Stopping Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Stopping Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deleting devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3/3
+[Deleting collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[run_eval 13:02:10] Test bottleneck_newreno complete → /Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/results/run_20260503_125944/bottleneck_newreno
+
+[run_eval 13:02:10] ===== bottleneck × cubic =====
+[run_eval 13:02:10] Starting Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Starting Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deploying collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[Deploying devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3/3
+[run_eval 13:02:14] Starting receiver in container...
+[run_eval 13:02:15] Starting sender (algo=cubic)...
+Done. algo=cubic elapsed=87.13s throughput=0.962Mbps sent=7490 acked=7486 timeouts=4
+[run_eval 13:03:43] Stopping Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Stopping Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deleting devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3/3
+[Deleting collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[run_eval 13:03:44] Test bottleneck_cubic complete → /Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/results/run_20260503_125944/bottleneck_cubic
+
+[run_eval 13:03:44] ===== bottleneck × ppo =====
+[run_eval 13:03:44] Starting Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Starting Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deploying collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[Deploying devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3/3
+[run_eval 13:03:48] Starting receiver in container...
+[run_eval 13:03:49] Starting sender (algo=ppo)...
+Done. algo=ppo elapsed=1.72s throughput=0.176Mbps sent=7490 acked=27 timeouts=7463
+[run_eval 13:03:52] Stopping Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Stopping Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deleting devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3/3
+[Deleting collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[run_eval 13:03:53] Test bottleneck_ppo complete → /Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/results/run_20260503_125944/bottleneck_ppo
+
+[run_eval 13:03:53] ===== variable_latency × newreno =====
+[run_eval 13:03:53] Starting Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Starting Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deploying collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[Deploying devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[run_eval 13:03:57] Starting receiver in container...
+[run_eval 13:03:58] Starting sender (algo=newreno)...
+Done. algo=newreno elapsed=8.76s throughput=9.575Mbps sent=7490 acked=7490 timeouts=0
+[run_eval 13:04:08] Stopping Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Stopping Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deleting devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[Deleting collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[run_eval 13:04:09] Test variable_latency_newreno complete → /Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/results/run_20260503_125944/variable_latency_newreno
+
+[run_eval 13:04:09] ===== variable_latency × cubic =====
+[run_eval 13:04:09] Starting Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Starting Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deploying collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[Deploying devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[run_eval 13:04:12] Starting receiver in container...
+[run_eval 13:04:13] Starting sender (algo=cubic)...
+Done. algo=cubic elapsed=20.48s throughput=4.096Mbps sent=7490 acked=7490 timeouts=0
+[run_eval 13:04:35] Stopping Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Stopping Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deleting devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[Deleting collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[run_eval 13:04:36] Test variable_latency_cubic complete → /Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/results/run_20260503_125944/variable_latency_cubic
+
+[run_eval 13:04:36] ===== variable_latency × ppo =====
+[run_eval 13:04:36] Starting Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Starting Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deploying collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[Deploying devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[run_eval 13:04:40] Starting receiver in container...
+[run_eval 13:04:41] Starting sender (algo=ppo)...
+Done. algo=ppo elapsed=1.71s throughput=1.147Mbps sent=7490 acked=175 timeouts=7315
+[run_eval 13:04:44] Stopping Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Stopping Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deleting devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[Deleting collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[run_eval 13:04:45] Test variable_latency_ppo complete → /Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/results/run_20260503_125944/variable_latency_ppo
+
+[run_eval 13:04:45] ===== high_loss × newreno =====
+[run_eval 13:04:45] Starting Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Starting Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deploying collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[Deploying devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[run_eval 13:04:49] Starting receiver in container...
+[run_eval 13:04:50] Starting sender (algo=newreno)...
+Done. algo=newreno elapsed=49.35s throughput=1.610Mbps sent=7490 acked=7096 timeouts=394
+[run_eval 13:05:41] Stopping Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Stopping Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deleting devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[Deleting collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[run_eval 13:05:41] Test high_loss_newreno complete → /Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/results/run_20260503_125944/high_loss_newreno
+
+[run_eval 13:05:41] ===== high_loss × cubic =====
+[run_eval 13:05:42] Starting Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Starting Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deploying collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[Deploying devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[run_eval 13:05:45] Starting receiver in container...
+[run_eval 13:05:46] Starting sender (algo=cubic)...
+[receiver] listening on UDP port 5000
+[receiver] 0.00 MB/s  total=0.00 MB
+[receiver] 0.15 MB/s  total=0.17 MB
+[receiver] 0.06 MB/s  total=0.24 MB
+[receiver] 0.04 MB/s  total=0.27 MB
+[receiver] 0.04 MB/s  total=0.31 MB
+[receiver] 0.03 MB/s  total=0.35 MB
+[receiver] 0.04 MB/s  total=0.38 MB
+[receiver] 0.06 MB/s  total=0.44 MB
+[receiver] 0.04 MB/s  total=0.48 MB
+[receiver] 0.03 MB/s  total=0.51 MB
+[receiver] 0.05 MB/s  total=0.56 MB
+[receiver] 0.06 MB/s  total=0.62 MB
+[receiver] 0.04 MB/s  total=0.66 MB
+[receiver] 0.04 MB/s  total=0.70 MB
+[receiver] 0.04 MB/s  total=0.74 MB
+[receiver] 0.04 MB/s  total=0.78 MB
+[receiver] 0.05 MB/s  total=0.83 MB
+[receiver] 0.05 MB/s  total=0.88 MB
+[receiver] 0.04 MB/s  total=0.92 MB
+[receiver] 0.04 MB/s  total=0.95 MB
+[receiver] 0.04 MB/s  total=0.99 MB
+[receiver] 0.04 MB/s  total=1.03 MB
+[receiver] 0.05 MB/s  total=1.08 MB
+[receiver] 0.06 MB/s  total=1.14 MB
+[receiver] 0.04 MB/s  total=1.17 MB
+[receiver] 0.05 MB/s  total=1.22 MB
+[receiver] 0.06 MB/s  total=1.28 MB
+[receiver] 0.04 MB/s  total=1.32 MB
+[receiver] 0.06 MB/s  total=1.38 MB
+[receiver] 0.04 MB/s  total=1.42 MB
+[receiver] 0.05 MB/s  total=1.47 MB
+[receiver] 0.04 MB/s  total=1.51 MB
+[receiver] 0.06 MB/s  total=1.57 MB
+[receiver] 0.05 MB/s  total=1.62 MB
+[receiver] 0.02 MB/s  total=1.65 MB
+[receiver] 0.06 MB/s  total=1.71 MB
+[receiver] 0.04 MB/s  total=1.74 MB
+[receiver] 0.05 MB/s  total=1.80 MB
+[receiver] 0.05 MB/s  total=1.85 MB
+[receiver] 0.05 MB/s  total=1.89 MB
+[receiver] 0.04 MB/s  total=1.93 MB
+[receiver] 0.06 MB/s  total=1.99 MB
+[receiver] 0.05 MB/s  total=2.04 MB
+[receiver] 0.06 MB/s  total=2.10 MB
+[receiver] 0.05 MB/s  total=2.15 MB
+[receiver] 0.02 MB/s  total=2.17 MB
+[receiver] 0.03 MB/s  total=2.20 MB
+[receiver] 0.05 MB/s  total=2.25 MB
+[receiver] 0.05 MB/s  total=2.30 MB
+[receiver] 0.05 MB/s  total=2.35 MB
+[receiver] 0.03 MB/s  total=2.38 MB
+[receiver] 0.06 MB/s  total=2.44 MB
+[receiver] 0.03 MB/s  total=2.48 MB
+[receiver] 0.04 MB/s  total=2.52 MB
+[receiver] 0.06 MB/s  total=2.58 MB
+[receiver] 0.06 MB/s  total=2.64 MB
+[receiver] 0.02 MB/s  total=2.66 MB
+[receiver] 0.03 MB/s  total=2.70 MB
+[receiver] 0.04 MB/s  total=2.74 MB
+[receiver] 0.04 MB/s  total=2.78 MB
+[receiver] 0.05 MB/s  total=2.83 MB
+[receiver] 0.03 MB/s  total=2.86 MB
+[receiver] 0.06 MB/s  total=2.91 MB
+[receiver] 0.05 MB/s  total=2.97 MB
+[receiver] 0.03 MB/s  total=3.00 MB
+[receiver] 0.02 MB/s  total=3.03 MB
+[receiver] 0.04 MB/s  total=3.07 MB
+[receiver] 0.05 MB/s  total=3.12 MB
+[receiver] 0.05 MB/s  total=3.17 MB
+[receiver] 0.04 MB/s  total=3.20 MB
+[receiver] 0.05 MB/s  total=3.25 MB
+[receiver] 0.04 MB/s  total=3.29 MB
+[receiver] 0.04 MB/s  total=3.32 MB
+[receiver] 0.04 MB/s  total=3.37 MB
+[receiver] 0.05 MB/s  total=3.42 MB
+[receiver] 0.04 MB/s  total=3.45 MB
+[receiver] 0.05 MB/s  total=3.50 MB
+[receiver] 0.02 MB/s  total=3.53 MB
+[receiver] 0.06 MB/s  total=3.58 MB
+[receiver] 0.05 MB/s  total=3.63 MB
+[receiver] 0.06 MB/s  total=3.69 MB
+[receiver] 0.04 MB/s  total=3.73 MB
+[receiver] 0.04 MB/s  total=3.76 MB
+[receiver] 0.06 MB/s  total=3.82 MB
+[receiver] 0.05 MB/s  total=3.88 MB
+[receiver] 0.04 MB/s  total=3.92 MB
+[receiver] 0.04 MB/s  total=3.96 MB
+[receiver] 0.04 MB/s  total=4.00 MB
+[receiver] 0.06 MB/s  total=4.06 MB
+[receiver] 0.04 MB/s  total=4.11 MB
+[receiver] 0.03 MB/s  total=4.14 MB
+[receiver] 0.05 MB/s  total=4.19 MB
+[receiver] 0.06 MB/s  total=4.25 MB
+[receiver] 0.04 MB/s  total=4.28 MB
+[receiver] 0.05 MB/s  total=4.33 MB
+[receiver] 0.05 MB/s  total=4.38 MB
+[receiver] 0.04 MB/s  total=4.41 MB
+[receiver] 0.03 MB/s  total=4.45 MB
+[receiver] 0.05 MB/s  total=4.50 MB
+[receiver] 0.05 MB/s  total=4.55 MB
+[receiver] 0.05 MB/s  total=4.60 MB
+[receiver] 0.04 MB/s  total=4.63 MB
+[receiver] 0.05 MB/s  total=4.68 MB
+[receiver] 0.05 MB/s  total=4.73 MB
+[receiver] 0.04 MB/s  total=4.76 MB
+[receiver] 0.04 MB/s  total=4.80 MB
+[receiver] 0.05 MB/s  total=4.85 MB
+[receiver] 0.05 MB/s  total=4.90 MB
+[receiver] 0.04 MB/s  total=4.93 MB
+[receiver] 0.04 MB/s  total=4.97 MB
+[receiver] 0.06 MB/s  total=5.03 MB
+[receiver] 0.06 MB/s  total=5.09 MB
+[receiver] 0.03 MB/s  total=5.13 MB
+[receiver] 0.05 MB/s  total=5.17 MB
+[receiver] 0.03 MB/s  total=5.21 MB
+[receiver] 0.05 MB/s  total=5.26 MB
+[receiver] 0.05 MB/s  total=5.31 MB
+[receiver] 0.05 MB/s  total=5.36 MB
+[receiver] 0.03 MB/s  total=5.39 MB
+[receiver] 0.05 MB/s  total=5.44 MB
+[receiver] 0.05 MB/s  total=5.49 MB
+[receiver] 0.04 MB/s  total=5.53 MB
+[receiver] 0.05 MB/s  total=5.57 MB
+[receiver] 0.06 MB/s  total=5.63 MB
+[receiver] 0.04 MB/s  total=5.67 MB
+[receiver] 0.04 MB/s  total=5.71 MB
+[receiver] 0.04 MB/s  total=5.74 MB
+[receiver] 0.05 MB/s  total=5.79 MB
+[receiver] 0.02 MB/s  total=5.81 MB
+[receiver] 0.06 MB/s  total=5.87 MB
+[receiver] 0.04 MB/s  total=5.91 MB
+[receiver] 0.05 MB/s  total=5.96 MB
+[receiver] 0.05 MB/s  total=6.00 MB
+[receiver] 0.05 MB/s  total=6.05 MB
+[receiver] 0.05 MB/s  total=6.11 MB
+[receiver] 0.05 MB/s  total=6.16 MB
+[receiver] 0.05 MB/s  total=6.20 MB
+[receiver] 0.03 MB/s  total=6.23 MB
+[receiver] 0.05 MB/s  total=6.28 MB
+[receiver] 0.04 MB/s  total=6.32 MB
+[receiver] 0.05 MB/s  total=6.36 MB
+[receiver] 0.04 MB/s  total=6.41 MB
+[receiver] 0.03 MB/s  total=6.43 MB
+[receiver] 0.03 MB/s  total=6.47 MB
+[receiver] 0.04 MB/s  total=6.50 MB
+[receiver] 0.03 MB/s  total=6.53 MB
+[receiver] 0.05 MB/s  total=6.58 MB
+[receiver] 0.03 MB/s  total=6.61 MB
+[receiver] 0.03 MB/s  total=6.63 MB
+[receiver] 0.05 MB/s  total=6.68 MB
+[receiver] 0.04 MB/s  total=6.72 MB
+[receiver] 0.02 MB/s  total=6.74 MB
+[receiver] 0.06 MB/s  total=6.80 MB
+[receiver] 0.03 MB/s  total=6.83 MB
+[receiver] 0.06 MB/s  total=6.89 MB
+[receiver] 0.05 MB/s  total=6.94 MB
+[receiver] 0.04 MB/s  total=6.98 MB
+[receiver] 0.03 MB/s  total=7.01 MB
+[receiver] 0.04 MB/s  total=7.05 MB
+[receiver] 0.05 MB/s  total=7.10 MB
+[receiver] 0.03 MB/s  total=7.12 MB
+[receiver] 0.02 MB/s  total=7.15 MB
+[receiver] 0.02 MB/s  total=7.17 MB
+[receiver] 0.04 MB/s  total=7.20 MB
+[receiver] 0.05 MB/s  total=7.25 MB
+[receiver] 0.05 MB/s  total=7.30 MB
+[receiver] 0.05 MB/s  total=7.35 MB
+[receiver] 0.06 MB/s  total=7.41 MB
+[receiver] 0.05 MB/s  total=7.46 MB
+[receiver] 0.05 MB/s  total=7.50 MB
+[receiver] 0.05 MB/s  total=7.55 MB
+[receiver] 0.03 MB/s  total=7.59 MB
+[receiver] 0.03 MB/s  total=7.62 MB
+[receiver] 0.04 MB/s  total=7.66 MB
+[receiver] 0.04 MB/s  total=7.70 MB
+[receiver] 0.03 MB/s  total=7.73 MB
+[receiver] 0.06 MB/s  total=7.79 MB
+[receiver] 0.06 MB/s  total=7.85 MB
+[receiver] 0.05 MB/s  total=7.90 MB
+[receiver] 0.02 MB/s  total=7.92 MB
+[receiver] 0.05 MB/s  total=7.97 MB
+[receiver] 0.05 MB/s  total=8.02 MB
+[receiver] 0.04 MB/s  total=8.06 MB
+[receiver] 0.03 MB/s  total=8.09 MB
+[receiver] 0.04 MB/s  total=8.14 MB
+[receiver] 0.02 MB/s  total=8.17 MB
+[receiver] 0.04 MB/s  total=8.20 MB
+[receiver] 0.04 MB/s  total=8.24 MB
+[receiver] 0.02 MB/s  total=8.27 MB
+[receiver] 0.04 MB/s  total=8.32 MB
+[receiver] 0.03 MB/s  total=8.36 MB
+[receiver] 0.05 MB/s  total=8.41 MB
+[receiver] 0.05 MB/s  total=8.45 MB
+[receiver] 0.05 MB/s  total=8.50 MB
+[receiver] 0.03 MB/s  total=8.54 MB
+[receiver] 0.05 MB/s  total=8.59 MB
+[receiver] 0.04 MB/s  total=8.62 MB
+[receiver] 0.04 MB/s  total=8.66 MB
+[receiver] 0.02 MB/s  total=8.68 MB
+[receiver] 0.05 MB/s  total=8.73 MB
+[receiver] 0.06 MB/s  total=8.79 MB
+[receiver] 0.04 MB/s  total=8.83 MB
+[receiver] 0.05 MB/s  total=8.88 MB
+[receiver] 0.05 MB/s  total=8.93 MB
+[receiver] 0.06 MB/s  total=8.99 MB
+[receiver] 0.02 MB/s  total=9.01 MB
+[receiver] 0.04 MB/s  total=9.06 MB
+[receiver] 0.04 MB/s  total=9.10 MB
+[receiver] 0.06 MB/s  total=9.16 MB
+[receiver] 0.04 MB/s  total=9.20 MB
+[receiver] 0.04 MB/s  total=9.23 MB
+[receiver] 0.05 MB/s  total=9.29 MB
+[receiver] 0.02 MB/s  total=9.31 MB
+[receiver] 0.04 MB/s  total=9.35 MB
+[receiver] 0.04 MB/s  total=9.39 MB
+[receiver] 0.04 MB/s  total=9.43 MB
+[receiver] 0.04 MB/s  total=9.47 MB
+[receiver] 0.04 MB/s  total=9.50 MB
+[receiver] 0.05 MB/s  total=9.55 MB
+[receiver] 0.05 MB/s  total=9.60 MB
+[receiver] 0.04 MB/s  total=9.64 MB
+[receiver] 0.04 MB/s  total=9.68 MB
+[receiver] 0.05 MB/s  total=9.73 MB
+[receiver] 0.02 MB/s  total=9.75 MB
+[receiver] 0.04 MB/s  total=9.79 MB
+[receiver] 0.04 MB/s  total=9.82 MB
+[receiver] 0.04 MBDone. algo=cubic elapsed=239.39s throughput=0.333Mbps sent=7490 acked=7125 timeouts=365
+[run_eval 13:09:48] Stopping Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Stopping Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deleting devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[Deleting collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[run_eval 13:09:48] Test high_loss_cubic complete → /Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/results/run_20260503_125944/high_loss_cubic
+
+[run_eval 13:09:48] ===== high_loss × ppo =====
+[run_eval 13:09:49] Starting Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Starting Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deploying collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[Deploying devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[run_eval 13:09:53] Starting receiver in container...
+[run_eval 13:09:54] Starting sender (algo=ppo)...
+Done. algo=ppo elapsed=1.77s throughput=1.123Mbps sent=7490 acked=177 timeouts=7305
+[run_eval 13:09:57] Stopping Kathara lab...
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 Stopping Network Scenario                                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+[Deleting devices]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2
+[Deleting collision domains]   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1
+[run_eval 13:09:57] Test high_loss_ppo complete → /Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/results/run_20260503_125944/high_loss_ppo
+
+[run_eval 13:09:57] All runs complete. Results in /Users/rahiksikder/Documents/UT_Austin/CS364M_Spring_2026/Final_Project/evaluation/results/run_20260503_125944
+[run_eval 13:09:57] Throughput summary:
+  bottleneck_cubic                               "avg_throughput_mbps": 0.9623
+  bottleneck_newreno                             "avg_throughput_mbps": 0.9623
+  bottleneck_ppo                                 "avg_throughput_mbps": 0.1757
+  high_loss_cubic                                "avg_throughput_mbps": 0.3333
+  high_loss_newreno                              "avg_throughput_mbps": 1.6103
+  high_loss_ppo                                  "avg_throughput_mbps": 1.1225
+  simple_p2p_cubic                               "avg_throughput_mbps": 4.1991
+  simple_p2p_newreno                             "avg_throughput_mbps": 9.5478
+  simple_p2p_ppo                                 "avg_throughput_mbps": 1.1572
+  variable_latency_cubic                         "avg_throughput_mbps": 4.0958
+  variable_latency_newreno                       "avg_throughput_mbps": 9.5755
+  variable_latency_ppo                           "avg_throughput_mbps": 1.1469
