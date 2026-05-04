@@ -1,17 +1,19 @@
-import gymnasium as gym
 import sys
+
+import gymnasium as gym
+
 sys.modules["gym"] = gym
 
 import argparse
 import json
 import os
+
 import torch
 import torch.optim as optim
-
-from tcp_train_toolkit.models.ppo_cnn import PpoActorCritic1DCNN
-from tcp_train_toolkit.models.dqn_cnn import DqnQNetwork1DCNN
+from tcp_train_toolkit import ddpg_trainer, dqn_trainer, export, ppo_trainer
 from tcp_train_toolkit.models.ddpg_cnn import DdpgActorCritic1DCNN
-from tcp_train_toolkit import export, ppo_trainer, dqn_trainer, ddpg_trainer
+from tcp_train_toolkit.models.dqn_cnn import DqnQNetwork1DCNN
+from tcp_train_toolkit.models.ppo_cnn import PpoActorCritic1DCNN
 
 # Default hyperparameters — used as fallback when a key is absent from model_params.json
 DEFAULTS = {
@@ -74,7 +76,9 @@ def load_params(model: str) -> tuple:
     Returns:
         (params, sim_list) where sim_list is None if not specified in the JSON.
     """
-    params_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "model_params.json")
+    params_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "model_params.json"
+    )
 
     json_params = {}
     if os.path.exists(params_path):
@@ -92,7 +96,9 @@ def load_params(model: str) -> tuple:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Train a TCP congestion control RL agent in NS-3")
+    parser = argparse.ArgumentParser(
+        description="Train a TCP congestion control RL agent in NS-3"
+    )
     parser.add_argument(
         "--model",
         default="ppo",
@@ -101,7 +107,9 @@ def main():
     args = parser.parse_args()
     model_name = args.model.lower()
     if model_name not in MODEL_TRAINERS:
-        raise ValueError(f"Unknown model: {args.model}. Valid options: {list(MODEL_TRAINERS.keys())}")
+        raise ValueError(
+            f"Unknown model: {args.model}. Valid options: {list(MODEL_TRAINERS.keys())}"
+        )
 
     params, sim_list = load_params(model_name)
 
@@ -112,13 +120,19 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     if model_name == "ppo":
-        model = PpoActorCritic1DCNN(k=params["k"], hidden_dim=params["hidden_dim"]).to(device)
+        model = PpoActorCritic1DCNN(k=params["k"], hidden_dim=params["hidden_dim"]).to(
+            device
+        )
         optimizer = optim.Adam(model.parameters(), lr=params["lr"])
     elif model_name == "dqn":
-        model = DqnQNetwork1DCNN(k=params["k"], hidden_dim=params["hidden_dim"]).to(device)
+        model = DqnQNetwork1DCNN(k=params["k"], hidden_dim=params["hidden_dim"]).to(
+            device
+        )
         optimizer = optim.Adam(model.parameters(), lr=params["lr"])
     elif model_name == "ddpg":
-        model = DdpgActorCritic1DCNN(k=params["k"], hidden_dim=params["hidden_dim"]).to(device)
+        model = DdpgActorCritic1DCNN(k=params["k"], hidden_dim=params["hidden_dim"]).to(
+            device
+        )
         actor_lr = params.get("lr_actor", params.get("lr", 1e-4))
         critic_lr = params.get("lr_critic", params.get("lr", 1e-3))
         optimizer = {
@@ -133,7 +147,7 @@ def main():
 
     # Export to ONNX for Kathará C integration
     print("Training complete. Exporting model to ONNX...")
-    state_dim = (params["k"] * 3) + 1
+    state_dim = (params["k"] * 3) + 2
     onnx_path = export.export_onnx(model, model_name, state_dim, device, k=params["k"])
     print(f"Export saved to {onnx_path}")
 

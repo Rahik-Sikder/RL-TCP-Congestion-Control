@@ -16,7 +16,4 @@ cc_ops_t *new_reno_create(void **ctx);
 /* Cubic constructor — defined in cc/cubic.c */
 cc_ops_t *cubic_create(void **ctx);
 
-/* PPO constructor — defined in cc/ppo.c */
-cc_ops_t *ppo_create(void **ctx, const char *model_dir);
-
 #endif /* CC_H */

@@ -16,5 +16,5 @@ onnxruntime/
 kathara/scenarios/*/shared/sender
 kathara/scenarios/*/shared/receiver
 kathara/scenarios/*/shared/lib/
-kathara/scenarios/*/shared/ppo.onnx
-kathara/scenarios/*/shared/ppo.onnx/*
+kathara/scenarios/*/shared/*.onnx
+kathara/scenarios/*/shared/*.onnx/*

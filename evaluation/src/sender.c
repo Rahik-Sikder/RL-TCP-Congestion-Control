@@ -11,6 +11,8 @@
 #include "cc/cubic.h"
 #include "cc/new_reno.h"
 #include "cc/ppo.h"
+#include "cc/dqn.h"
+#include "cc/ddpg.h"
 #include "transport/transport.h"
 
 #ifdef DEBUG
@@ -133,6 +135,18 @@ int main(int argc, char **argv) {
             return 1;
         }
         cc = ppo_create(&ctx, model_dir);
+    } else if (strcmp(cc_name, "dqn") == 0) {
+        if (!model_dir) {
+            fprintf(stderr, "--cc dqn requires --model DIR\n");
+            return 1;
+        }
+        cc = dqn_create(&ctx, model_dir);
+    } else if (strcmp(cc_name, "ddpg") == 0) {
+        if (!model_dir) {
+            fprintf(stderr, "--cc ddpg requires --model DIR\n");
+            return 1;
+        }
+        cc = ddpg_create(&ctx, model_dir);
     } else {
         fprintf(stderr, "unknown --cc value: %s\n", cc_name);
         return 1;

@@ -63,22 +63,32 @@ To test PPO, add `--cc ppo --model path/to/ppo_output_dir`. The directory must c
 
 ### 3. Run all scenarios
 
+NewReno and Cubic always run as baselines. Pass one or more model directories to also run RL-based algorithms — the algorithm name is taken from the directory prefix (everything before the first `_`):
+
 ```bash
-# Auto-detects the most recent training/outputs/ppo_* directory
+# Baselines only (newreno + cubic)
 ./evaluation/run_eval.sh
 
-# Or pass the model directory explicitly
+# Baselines + PPO (auto-detects most recent training/outputs/ppo_* directory)
 ./evaluation/run_eval.sh training/outputs/ppo_2026-04-15_21-49-25
+
+# Baselines + multiple RL models in one run
+./evaluation/run_eval.sh \
+  training/outputs/ppo_2026-05-01_10-00-00 \
+  training/outputs/dqn_2026-05-02_14-30-00 \
+  training/outputs/ddpg_2026-05-03_09-15-00
 ```
 
-This iterates over all 4 scenarios × 3 algorithms (12 runs total). Each run:
+Each model directory must contain `<algo>.onnx` and `<algo>.info.json` (produced by `training/train_agent.py`). The directory name prefix determines which `--cc` value is passed to the sender (e.g. `ppo_...` → `--cc ppo`).
+
+This iterates over all 4 scenarios × (2 baselines + N models). Each run:
 1. Starts the Kathara lab for the scenario
 2. Launches the receiver inside its container
 3. Runs the sender with the chosen CC algorithm
 4. Copies `summary.json` and `timeseries.csv` out of the container
 5. Tears the lab down
 
-Results land in `evaluation/results/{scenario}_{algo}_{timestamp}/`.
+Results land in `evaluation/results/run_TIMESTAMP/{scenario}_{algo}/`.
 
 ### 4. Run a single scenario manually
 
@@ -151,9 +161,9 @@ Use these for comparing cwnd evolution, RTT response, and loss behavior across a
 
 | Name | `--cc` value | Notes |
 |---|---|---|
-| TCP NewReno | `newreno` | Slow start, AIMD, fast retransmit after 3 dupACKs |
-| TCP Cubic | `cubic` | W_cubic window function (C=0.4, β=0.7) |
-| PPO (RL agent) | `ppo` | Loads ONNX model; reads `k` from `ppo.info.json` |
+| TCP NewReno | `newreno` | Baseline — slow start, AIMD, fast retransmit after 3 dupACKs |
+| TCP Cubic | `cubic` | Baseline — W_cubic window function (C=0.4, β=0.7) |
+| RL agent (any) | e.g. `ppo`, `dqn`, `ddpg` | Loads `<algo>.onnx`; reads `k` from `<algo>.info.json` in the model dir |
 
 ## Debug Output
 

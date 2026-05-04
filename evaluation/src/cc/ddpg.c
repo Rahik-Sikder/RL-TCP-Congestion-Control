@@ -1,7 +1,5 @@
-#include "ppo.h"
+#include "ddpg.h"
 #include "../transport/queue.h"
-/* tar release (Linux/macOS): flat include dir → <onnxruntime_c_api.h>
- * pip/apt layout has it under onnxruntime/core/session/ — adjust ONNX_PREFIX if needed */
 #include <onnxruntime_c_api.h>
 #include <math.h>
 #include <stdio.h>
@@ -9,7 +7,7 @@
 #include <string.h>
 
 #ifdef DEBUG
-#define DBG(...) fprintf(stderr, "[ppo] " __VA_ARGS__)
+#define DBG(...) fprintf(stderr, "[ddpg] " __VA_ARGS__)
 #else
 #define DBG(...) ((void)0)
 #endif
@@ -30,16 +28,15 @@ typedef struct {
     /* rolling loss-rate counters */
     long               total_packets;
     long               lost_packets;
-} ppo_ctx_t;
+} ddpg_ctx_t;
 
-/* Read k from {model_dir}/ppo.info.json */
 static int read_k(const char *model_dir) {
     char path[MAX_PATH];
-    snprintf(path, sizeof(path), "%s/ppo.info.json", model_dir);
+    snprintf(path, sizeof(path), "%s/ddpg.info.json", model_dir);
 
     FILE *f = fopen(path, "r");
     if (!f) {
-        fprintf(stderr, "[ppo] cannot open %s\n", path);
+        fprintf(stderr, "[ddpg] cannot open %s\n", path);
         char ls_cmd[MAX_PATH + 8];
         snprintf(ls_cmd, sizeof(ls_cmd), "ls -la %s", model_dir);
         system(ls_cmd);
@@ -49,23 +46,20 @@ static int read_k(const char *model_dir) {
     int k = -1;
     while (fgets(buf, sizeof(buf), f)) {
         char *p = strstr(buf, "\"k\"");
-        if (p) {
-            p = strchr(p, ':');
-            if (p) { k = atoi(p + 1); break; }
-        }
+        if (p && (p = strchr(p, ':'))) { k = atoi(p + 1); break; }
     }
     fclose(f);
     DBG("loaded k=%d from %s\n", k, path);
     return k;
 }
 
-static void ppo_run_inference(ppo_ctx_t *ctx) {
+static void ddpg_run_inference(ddpg_ctx_t *ctx) {
     int state_dim = ctx->k * 3 + 2;  /* rtt, dup_ack, timeout × k + cwnd + loss_rate */
 
     float      *state   = calloc((size_t)state_dim, sizeof(float));
     tcp_info_t *entries = calloc((size_t)ctx->k,    sizeof(tcp_info_t));
     if (!state || !entries) {
-        fprintf(stderr, "[ppo] OOM in inference\n");
+        fprintf(stderr, "[ddpg] OOM in inference\n");
         free(state); free(entries);
         return;
     }
@@ -82,9 +76,9 @@ static void ppo_run_inference(ppo_ctx_t *ctx) {
             if (entries[i].dup_ack || entries[i].timeout)
                 loss_events++;
         }
-        /* else: already 0.0f from calloc */
     }
-    state[3 * ctx->k]     = ctx->current_cwnd / (float)MSS;
+    float cwnd_mss = ctx->current_cwnd / (float)MSS;
+    state[3 * ctx->k]     = cwnd_mss;
     state[3 * ctx->k + 1] = ctx->total_packets > 0
                             ? (float)ctx->lost_packets / (float)ctx->total_packets
                             : (float)loss_events / (float)(count > 0 ? count : 1);
@@ -93,63 +87,59 @@ static void ppo_run_inference(ppo_ctx_t *ctx) {
         state[0], state[1], state[2], state[3 * ctx->k], state[3 * ctx->k + 1]);
 
     /* ---- ONNX Runtime inference ---- */
-    int64_t   shape[]        = {1, state_dim};
-    OrtValue *input_tensor   = NULL;
-    OrtValue *outputs[3]     = {NULL, NULL, NULL};
-    OrtStatus *status        = NULL;
+    int64_t   shape[]  = {1, state_dim};
+    OrtValue *input    = NULL;
+    OrtValue *output   = NULL;
+    OrtStatus *status  = NULL;
 
     status = g_ort->CreateTensorWithDataAsOrtValue(
         ctx->mem_info, state, (size_t)state_dim * sizeof(float),
-        shape, 2, ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, &input_tensor);
+        shape, 2, ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, &input);
     if (status) {
-        fprintf(stderr, "[ppo] 1ORT error: %s\n", g_ort->GetErrorMessage(status));
+        fprintf(stderr, "[ddpg] ORT error: %s\n", g_ort->GetErrorMessage(status));
         g_ort->ReleaseStatus(status);
         goto cleanup;
     }
 
     const char *input_names[]  = {"state"};
-    const char *output_names[] = {"action_mean", "action_std", "value"};
+    const char *output_names[] = {"action"};
 
     status = g_ort->Run(ctx->session, NULL,
-                        input_names,
-                        (const OrtValue *const *)&input_tensor, 1,
-                        output_names, 3, outputs);
+                        input_names, (const OrtValue *const *)&input, 1,
+                        output_names, 1, &output);
     if (status) {
-        fprintf(stderr, "[ppo] 2ORT error: %s\n", g_ort->GetErrorMessage(status));
+        fprintf(stderr, "[ddpg] ORT error: %s\n", g_ort->GetErrorMessage(status));
         g_ort->ReleaseStatus(status);
         goto cleanup;
     }
 
-    float *action_mean_data = NULL;
-    status = g_ort->GetTensorMutableData(outputs[0], (void **)&action_mean_data);
+    float *action_data = NULL;
+    status = g_ort->GetTensorMutableData(output, (void **)&action_data);
     if (status) {
-        fprintf(stderr, "[ppo] 3ORT error: %s\n", g_ort->GetErrorMessage(status));
+        fprintf(stderr, "[ddpg] ORT error: %s\n", g_ort->GetErrorMessage(status));
         g_ort->ReleaseStatus(status);
         goto cleanup;
     }
 
-    float action_mean = action_mean_data[0];
-    float new_cwnd    = ctx->current_cwnd * powf(2.0f, action_mean);
+    /* actor outputs tanh(·) ∈ [-1, 1]; treat as log2 cwnd scale factor */
+    float action = action_data[0];
+    float new_cwnd = ctx->current_cwnd * powf(2.0f, action);
     new_cwnd = fmaxf((float)MSS, fminf(1000.0f * (float)MSS, new_cwnd));
 
-    DBG("action_mean=%.4f old_cwnd=%.0f new_cwnd=%.0f\n",
-        action_mean, ctx->current_cwnd, new_cwnd);
+    DBG("action=%.4f old_cwnd=%.0f new_cwnd=%.0f\n",
+        action, ctx->current_cwnd, new_cwnd);
 
     ctx->current_cwnd = new_cwnd;
 
 cleanup:
-    for (int i = 0; i < 3; i++)
-        if (outputs[i]) g_ort->ReleaseValue(outputs[i]);
-    if (input_tensor) g_ort->ReleaseValue(input_tensor);
+    if (output) g_ort->ReleaseValue(output);
+    if (input)  g_ort->ReleaseValue(input);
     free(state);
     free(entries);
 }
 
-static void ppo_on_ack(void *raw_ctx, tcp_info_t *info) {
-    ppo_ctx_t *ctx = (ppo_ctx_t *)raw_ctx;
-
-    DBG("on_ack: rtt=%.2fms dup=%d timeout=%d cwnd=%.0f\n",
-        info->rtt_ms, info->dup_ack, info->timeout, info->cwnd);
+static void ddpg_on_ack(void *raw_ctx, tcp_info_t *info) {
+    ddpg_ctx_t *ctx = (ddpg_ctx_t *)raw_ctx;
 
     ctx->total_packets++;
     if (info->dup_ack || info->timeout)
@@ -158,7 +148,7 @@ static void ppo_on_ack(void *raw_ctx, tcp_info_t *info) {
     queue_push(ctx->queue, info);
 
     if (ctx->inference_busy) {
-        DBG("inference in progress, dropping packet for inference\n");
+        DBG("inference in progress, skipping\n");
         return;
     }
     if (queue_size(ctx->queue) < ctx->k) {
@@ -168,20 +158,20 @@ static void ppo_on_ack(void *raw_ctx, tcp_info_t *info) {
     }
 
     ctx->inference_busy = 1;
-    ppo_run_inference(ctx);
+    ddpg_run_inference(ctx);
     ctx->inference_busy = 0;
 }
 
-static void ppo_on_timeout(void *raw_ctx, tcp_info_t *info) {
-    ppo_on_ack(raw_ctx, info);
+static void ddpg_on_timeout(void *raw_ctx, tcp_info_t *info) {
+    ddpg_on_ack(raw_ctx, info);
 }
 
-static float ppo_get_cwnd(void *raw_ctx) {
-    return ((ppo_ctx_t *)raw_ctx)->current_cwnd;
+static float ddpg_get_cwnd(void *raw_ctx) {
+    return ((ddpg_ctx_t *)raw_ctx)->current_cwnd;
 }
 
-static void ppo_destroy(void *raw_ctx) {
-    ppo_ctx_t *ctx = (ppo_ctx_t *)raw_ctx;
+static void ddpg_destroy(void *raw_ctx) {
+    ddpg_ctx_t *ctx = (ddpg_ctx_t *)raw_ctx;
     queue_destroy(ctx->queue);
     if (ctx->mem_info) g_ort->ReleaseMemoryInfo(ctx->mem_info);
     if (ctx->session)  g_ort->ReleaseSession(ctx->session);
@@ -190,45 +180,45 @@ static void ppo_destroy(void *raw_ctx) {
     free(ctx);
 }
 
-static cc_ops_t ppo_ops = {
-    .on_ack     = ppo_on_ack,
-    .on_timeout = ppo_on_timeout,
-    .get_cwnd   = ppo_get_cwnd,
-    .destroy    = ppo_destroy,
+static cc_ops_t ddpg_ops = {
+    .on_ack     = ddpg_on_ack,
+    .on_timeout = ddpg_on_timeout,
+    .get_cwnd   = ddpg_get_cwnd,
+    .destroy    = ddpg_destroy,
 };
 
-cc_ops_t *ppo_create(void **ctx_out, const char *model_dir) {
+cc_ops_t *ddpg_create(void **ctx_out, const char *model_dir) {
     g_ort = OrtGetApiBase()->GetApi(ORT_API_VERSION);
     if (!g_ort) {
-        fprintf(stderr, "[ppo] failed to get ONNX Runtime API\n");
+        fprintf(stderr, "[ddpg] failed to get ONNX Runtime API\n");
         return NULL;
     }
-    DBG("ONNX Runtime API version %u loaded\n", ORT_API_VERSION);
 
     int k = read_k(model_dir);
     if (k <= 0) {
-        fprintf(stderr, "[ppo] invalid k=%d from %s\n", k, model_dir);
+        fprintf(stderr, "[ddpg] invalid k=%d from %s\n", k, model_dir);
         return NULL;
     }
 
-    ppo_ctx_t *ctx    = calloc(1, sizeof(ppo_ctx_t));
+    ddpg_ctx_t *ctx   = calloc(1, sizeof(ddpg_ctx_t));
     ctx->k            = k;
     ctx->current_cwnd = (float)(INIT_CWND_SEGS * MSS);
     ctx->queue        = queue_create(k);
 
-    OrtStatus *s_env  = g_ort->CreateEnv(ORT_LOGGING_LEVEL_WARNING, "ppo_eval", &ctx->env);
-    if (s_env) { g_ort->ReleaseStatus(s_env); }  /* non-fatal: env failures are recoverable */
-    OrtStatus *s_opts = g_ort->CreateSessionOptions(&ctx->opts);
-    if (s_opts) { g_ort->ReleaseStatus(s_opts); }
+    OrtStatus *s;
+    s = g_ort->CreateEnv(ORT_LOGGING_LEVEL_WARNING, "ddpg_eval", &ctx->env);
+    if (s) g_ort->ReleaseStatus(s);
+    s = g_ort->CreateSessionOptions(&ctx->opts);
+    if (s) g_ort->ReleaseStatus(s);
 
     char onnx_path[MAX_PATH];
-    snprintf(onnx_path, sizeof(onnx_path), "%s/ppo.onnx", model_dir);
+    snprintf(onnx_path, sizeof(onnx_path), "%s/ddpg.onnx", model_dir);
     DBG("loading model from %s\n", onnx_path);
 
     OrtStatus *status = g_ort->CreateSession(ctx->env, onnx_path,
                                              ctx->opts, &ctx->session);
     if (status) {
-        fprintf(stderr, "[ppo] CreateSession failed: %s\n",
+        fprintf(stderr, "[ddpg] CreateSession failed: %s\n",
                 g_ort->GetErrorMessage(status));
         g_ort->ReleaseStatus(status);
         queue_destroy(ctx->queue);
@@ -238,13 +228,12 @@ cc_ops_t *ppo_create(void **ctx_out, const char *model_dir) {
         return NULL;
     }
 
-    OrtStatus *s_mem = g_ort->CreateMemoryInfo("Cpu", OrtDeviceAllocator, 0,
-                                               OrtMemTypeDefault, &ctx->mem_info);
-    if (s_mem) { g_ort->ReleaseStatus(s_mem); }
+    s = g_ort->CreateMemoryInfo("Cpu", OrtDeviceAllocator, 0,
+                                OrtMemTypeDefault, &ctx->mem_info);
+    if (s) g_ort->ReleaseStatus(s);
 
-    DBG("model loaded. k=%d state_dim=%d initial_cwnd=%.0f\n",
-        k, k * 3 + 2, ctx->current_cwnd);
+    DBG("model loaded. k=%d state_dim=%d\n", k, k * 3 + 2);
 
     *ctx_out = ctx;
-    return &ppo_ops;
+    return &ddpg_ops;
 }

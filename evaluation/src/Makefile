@@ -19,7 +19,7 @@ LIBS    = -lm
 SENDER_LIBS = $(LIBS) -L$(ONNX_PREFIX)/lib -lonnxruntime -Wl,-rpath,$(ONNX_PREFIX)/lib
 
 TRANSPORT_SRCS = transport/transport.c transport/queue.c
-CC_SRCS        = cc/new_reno.c cc/cubic.c cc/ppo.c
+CC_SRCS        = cc/new_reno.c cc/cubic.c cc/ppo.c cc/dqn.c cc/ddpg.c
 SENDER_SRCS    = sender.c $(TRANSPORT_SRCS) $(CC_SRCS)
 RECEIVER_SRCS  = receiver.c $(TRANSPORT_SRCS)
 
